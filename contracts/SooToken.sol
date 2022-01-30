@@ -9,4 +9,6 @@ contract SooToken is ERC20 {
     constructor(uint256 initialSupply) ERC20("Soo", "SOO") {
         _mint(msg.sender, initialSupply);
     }
+
+
 }
