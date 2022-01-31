@@ -7,38 +7,55 @@ import "./IEsterToken.sol";
 contract ReceiverExchange {
 
     address esterToken;
+    IEsterToken public EstrContract;
+    // mapping(address => uint256) public balanceOf;
+    event BoughtESTR(address indexed sender, uint256 amount);
 
     constructor(address _esterToken) {
         esterToken = _esterToken;
+        EstrContract = IEsterToken(esterToken);
     }
 
     struct BuyOrder {
         uint256 amount;
+        uint256 bidPrice;
         address userId;
     }
 
-    mapping(address => uint256) public balanceOf;
 
-    // function transfer(address recipient, uint256 amount) public override returns (bool) {
-    //     _transfer(msg.sender, recipient, amount);
-    //     return true;
-    // } 
 
-    // function handleBuyOrder(BuyOrder memory buyorder) internal {
+    function handleBatchOrders(BuyOrder[] memory batchBuyOrders) external {
+        for (uint256 i = 0; i <= batchBuyOrders.length; i++) {
+            BuyOrder memory buy_order = batchBuyOrders[i];
+            _handleBuyOrderTransaction(buy_order);
+        }
+    }
 
-    // }
-    
-    IEsterToken EstrContract = IEsterToken(esterToken);
+    function _handleBuyOrderTransaction(BuyOrder memory buy_order) internal returns(bool) {
+        require(buy_order.bidPrice >= 1 ether, "Bid price is too low!");
+        _transferToBuyer(buy_order.userId, buy_order.amount);
+        return true;
+    }
+   
 
-    function _buyESTR(address buyer, uint256 amount) external returns(bool) {
+    //  this function works! change this to a internal function later
+    function _transferToBuyer(address buyer, uint256 amount) public returns(bool) {
+        // balanceOf[buyer] += amount;
+        emit BoughtESTR(buyer, amount);
         return EstrContract.transfer(buyer, amount);
     }
 
-    function checkBalance(address wallet) external view returns(uint256) {
-        return EstrContract.balanceOf(wallet);
-    }
+    // Using EsterToken function transfer(address recipient, uint256 amount) public returns bool
+    // This doesn't work
+    // function contractBuyESTR() public {
+    //     EstrContract.depositEth();
+    // }
 
-    // need a receive function to get ETH
+    receive() external payable {
+
+    }
 
 
 }
+
+

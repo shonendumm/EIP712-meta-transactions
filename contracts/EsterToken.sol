@@ -22,7 +22,7 @@ contract EsterToken is IEsterToken  {
         _name = "Ester Token";
         _symbol = "ESTR";
         _owner = msg.sender;
-        uint256 _supply = 2000_0000000000_00000000;
+        uint256 _supply = 2000 ether;
         _mint(_supply);
         _totalSupply = _supply;
     }
@@ -128,17 +128,17 @@ contract EsterToken is IEsterToken  {
     }
     
 
-    function depositEth() public payable override {
-        _transfer(address(this), msg.sender, msg.value);
-        emit Deposit(msg.sender, msg.value);
-    }
+    // function depositEth() public payable override {
+    //     _transfer(address(this), msg.sender, msg.value);
+    //     emit Deposit(msg.sender, msg.value);
+    // }
 
-    function withdrawEth(uint256 amount) public override {
-        require(_balances[msg.sender] >= amount, "You do not have enough ESTR tokens!");
-        _transfer(msg.sender, address(this), amount);
-        payable(msg.sender).transfer(amount);
-        emit Withdrawal(msg.sender, amount);
-    }
+    // function withdrawEth(uint256 amount) public override {
+    //     require(_balances[msg.sender] >= amount, "You do not have enough ESTR tokens!");
+    //     _transfer(msg.sender, address(this), amount);
+    //     payable(msg.sender).transfer(amount);
+    //     emit Withdrawal(msg.sender, amount);
+    // }
 
 
 }

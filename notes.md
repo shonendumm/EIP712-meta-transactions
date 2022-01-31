@@ -338,6 +338,6 @@ hh verify --contract contracts/SooToken.sol:SooToken 0x2ff63b86682Ba3Da99A4cDfEa
 
 
 ## Verification of both contracts
-hh verify 0xFBe53599680825c2D16bbd34b65AeaAEbB58e591 --network rinkeby
+hh verify 0x4D0217e3032f613FaF691bF3c1055c4E7285eE26 --network rinkeby
 
-hh verify 0x2b078eF7C7Fb0892973Db4D84F20D7429b01EC50 --network rinkeby 0xFBe53599680825c2D16bbd34b65AeaAEbB58e591
+hh verify 0x8a443743282734Bb17169E4153FD6b1d5D9d7686 --network rinkeby 0x4D0217e3032f613FaF691bF3c1055c4E7285eE26
