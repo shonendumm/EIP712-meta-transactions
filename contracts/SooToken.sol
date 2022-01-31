@@ -1,5 +1,5 @@
-// contracts/SooToken.sol
 // SPDX-License-Identifier:MIT
+// Token created by inheriting from openzeppelin's ERC20 contract
 
 pragma solidity ^0.8.0;
 

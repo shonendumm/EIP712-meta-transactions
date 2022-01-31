@@ -5,6 +5,7 @@
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
 
+
 async function main() {
     // Hardhat always runs the compile task when running scripts with its command
     // line interface.
@@ -15,7 +16,11 @@ async function main() {
 
     // We get the contract to deploy
     const SooToken = await hre.ethers.getContractFactory("SooToken");
-    const soo_token = await SooToken.deploy(1000);
+    // use string as args because JS cannot handle bignumber. We can also use ethers.BigNumber.from("1000000000000000000000")
+    // const soo_token = await SooToken.deploy("1000000000000000000000");
+    // Below, similar to using string "1000000000000000000000"
+    const soo_token = await SooToken.deploy(ethers.utils.parseEther("1000"));
+
 
     await soo_token.deployed();
 

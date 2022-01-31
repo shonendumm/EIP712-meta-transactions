@@ -14,12 +14,20 @@ contract EsterToken is IEsterToken  {
 
     string private _name;
     string private _symbol;
+    address private _owner;
 
-    constructor(uint256 _supply) {
+    constructor() {
         _name = "Ester Token";
         _symbol = "ESTR";
-        _mint(_supply);
+        _owner = msg.sender;
+        uint256 _supply = 1000_0000000000_00000000;
+        mint(_supply);
         _totalSupply = _supply;
+    }
+
+    modifier onlyOwner() {
+        require(_owner == msg.sender, "Only owner can call this function");
+        _;
     }
 
     function name() public view override returns (string memory) {
@@ -61,7 +69,10 @@ contract EsterToken is IEsterToken  {
         uint256 currentAllowance = _allowances[from][msg.sender];
         if (currentAllowance != type(uint256).max) {
             require(currentAllowance >= amount, "ERC20: transfer amount exceeds allowance");
-            _approve(from, msg.sender, currentAllowance - amount);
+            // unchecked because it saves gas, and we used require check to ensure it wont overflo
+            unchecked {
+                _approve(from, msg.sender, currentAllowance - amount);
+            }
         }
 
         _transfer(from, recipient, amount);
@@ -81,18 +92,26 @@ contract EsterToken is IEsterToken  {
 
         uint256 senderBalance = _balances[sender];
         require(senderBalance >= amount, "ERC20: transfer amount exceeds balance");
-        _balances[sender] = senderBalance - amount;
+        // unchecked because it saves gas, and we used require check to ensure it wont overflow
+        unchecked {
+            _balances[sender] = senderBalance - amount;
+        }
         _balances[recipient] += amount;
 
         emit Transfer(sender, recipient, amount);
 
     }
 
-    function _mint(uint256 supply) internal {
+    function mint(uint256 supply) public onlyOwner {
+        _mint(supply);
+    }
+
+    function _mint(uint256 supply) private {
         _balances[msg.sender] = supply;
         emit Transfer(address(0), msg.sender, supply);
     }
 
+    // To change allowance for transfer of owner's tokens by specified spender
     function _approve(
         address owner,
         address spender,
