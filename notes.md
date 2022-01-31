@@ -332,6 +332,12 @@ hh verify 0xA87FaA844D42d55d08477A9d76FCf55bD61FEE72 --network rinkeby 1000
 
 hh verify 0xF2cc66110767DE4Ad01D345EDb66ad0E7aF0717F --network rinkeby 1000
 
-hh verify 0xA3F94E7769965651894f463a452Ef3E430ED82B2 --network rinkeby
+hh verify 0xa85076BFB0E12FE4Cfdb361099e9cAE3de94A041 --network rinkeby
 
 hh verify --contract contracts/SooToken.sol:SooToken 0x2ff63b86682Ba3Da99A4cDfEa01aB96284413f97 --network rinkeby "1000000000000000000000"
+
+
+## Verification of both contracts
+hh verify 0xFBe53599680825c2D16bbd34b65AeaAEbB58e591 --network rinkeby
+
+hh verify 0x2b078eF7C7Fb0892973Db4D84F20D7429b01EC50 --network rinkeby 0xFBe53599680825c2D16bbd34b65AeaAEbB58e591

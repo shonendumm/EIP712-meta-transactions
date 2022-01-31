@@ -18,9 +18,13 @@ interface IEsterToken {
     function transfer(address recipient, uint256 amount) external returns (bool);
     function transferFrom(address from, address recipient, uint256 amount) external returns (bool);
 
+    function depositEth() external payable;
+    function withdrawEth(uint256 amount) external;
 
-    event Transfer(address indexed _from, address indexed _to, uint256 _value);
-    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+    event Transfer(address indexed _from, address indexed _to, uint256 amount);
+    event Approval(address indexed _owner, address indexed _spender, uint256 amount);
+    event Deposit(address indexed sender, uint256 amount);
+    event Withdrawal(address indexed recipient, uint256 amount);
 
 
 }

@@ -7,6 +7,15 @@ async function main() {
     await ester_token.deployed();
 
     console.log("EsterToken deployed to:", ester_token.address);
+
+    const ReceiverExchange = await hre.ethers.getContractFactory("ReceiverExchange");
+    const exchange = await ReceiverExchange.deploy(ester_token.address);
+
+    await exchange.deployed();
+
+    console.log("ReceiverExchange deployed to:", exchange.address);
+
+
 }
 
 main()

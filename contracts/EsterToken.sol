@@ -1,4 +1,6 @@
 // SPDX-License-Identifier:MIT
+// EsterToken is an ERC20 token, mints to 2000 tokens at the start
+// Deposit 1 ETH to get 1 ESTR
 
 pragma solidity ^0.8.0;
 
@@ -20,8 +22,8 @@ contract EsterToken is IEsterToken  {
         _name = "Ester Token";
         _symbol = "ESTR";
         _owner = msg.sender;
-        uint256 _supply = 1000_0000000000_00000000;
-        mint(_supply);
+        uint256 _supply = 2000_0000000000_00000000;
+        _mint(_supply);
         _totalSupply = _supply;
     }
 
@@ -107,7 +109,8 @@ contract EsterToken is IEsterToken  {
     }
 
     function _mint(uint256 supply) private {
-        _balances[msg.sender] = supply;
+        _balances[msg.sender] += supply;
+        _totalSupply += supply;
         emit Transfer(address(0), msg.sender, supply);
     }
 
@@ -125,7 +128,17 @@ contract EsterToken is IEsterToken  {
     }
     
 
+    function depositEth() public payable override {
+        _transfer(address(this), msg.sender, msg.value);
+        emit Deposit(msg.sender, msg.value);
+    }
 
+    function withdrawEth(uint256 amount) public override {
+        require(_balances[msg.sender] >= amount, "You do not have enough ESTR tokens!");
+        _transfer(msg.sender, address(this), amount);
+        payable(msg.sender).transfer(amount);
+        emit Withdrawal(msg.sender, amount);
+    }
 
 
 }
