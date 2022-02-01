@@ -338,6 +338,15 @@ hh verify --contract contracts/SooToken.sol:SooToken 0x2ff63b86682Ba3Da99A4cDfEa
 
 
 ## Verification of both contracts
-hh verify 0x4D0217e3032f613FaF691bF3c1055c4E7285eE26 --network rinkeby
+hh verify 0x393FAEd93633c820c0d29876CA02f461AE72D380 --network rinkeby
 
-hh verify 0x8a443743282734Bb17169E4153FD6b1d5D9d7686 --network rinkeby 0x4D0217e3032f613FaF691bF3c1055c4E7285eE26
+hh verify 0x281967f5f57218273Ab3335471fcCa96Ae59eD3E --network rinkeby 0x393FAEd93633c820c0d29876CA02f461AE72D380
+
+
+Transfer 1000 tokens to Exchange contract first - works for Ester contract!
+
+To testBatchOrders:
+
+doesn't work if exchange contract has no ETH.
+
+Transferred ETH to exchange contract, but cannot execute.

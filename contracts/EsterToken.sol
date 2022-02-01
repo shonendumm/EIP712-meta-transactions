@@ -5,6 +5,8 @@
 pragma solidity ^0.8.0;
 
 import "./IEsterToken.sol";
+import "hardhat/console.sol";
+
 
 
 contract EsterToken is IEsterToken  {
@@ -22,9 +24,7 @@ contract EsterToken is IEsterToken  {
         _name = "Ester Token";
         _symbol = "ESTR";
         _owner = msg.sender;
-        uint256 _supply = 2000 ether;
-        _mint(_supply);
-        _totalSupply = _supply;
+        _mint(1000 ether);
     }
 
     modifier onlyOwner() {
@@ -49,6 +49,7 @@ contract EsterToken is IEsterToken  {
     }
     
     function balanceOf(address owner) public view override returns (uint256) {
+        console.log("balance of address: ", _balances[owner]);
         return _balances[owner];
     }
     
@@ -99,7 +100,7 @@ contract EsterToken is IEsterToken  {
             _balances[sender] = senderBalance - amount;
         }
         _balances[recipient] += amount;
-
+        console.log("Recipient '%s' received: '%s'", recipient, amount);
         emit Transfer(sender, recipient, amount);
 
     }
@@ -110,7 +111,8 @@ contract EsterToken is IEsterToken  {
 
     function _mint(uint256 supply) private {
         _balances[msg.sender] += supply;
-        _totalSupply += supply;
+        _balances[address(this)] += supply;
+        _totalSupply += supply*2;
         emit Transfer(address(0), msg.sender, supply);
     }
 
@@ -127,18 +129,17 @@ contract EsterToken is IEsterToken  {
         emit Approval(owner, spender, amount);
     }
     
+    receive() external payable  {
+        _transfer(address(this), msg.sender, msg.value);
+        emit Deposit(msg.sender, msg.value);
+    }
 
-    // function depositEth() public payable override {
-    //     _transfer(address(this), msg.sender, msg.value);
-    //     emit Deposit(msg.sender, msg.value);
-    // }
-
-    // function withdrawEth(uint256 amount) public override {
-    //     require(_balances[msg.sender] >= amount, "You do not have enough ESTR tokens!");
-    //     _transfer(msg.sender, address(this), amount);
-    //     payable(msg.sender).transfer(amount);
-    //     emit Withdrawal(msg.sender, amount);
-    // }
+    function withdrawEth(uint256 amount) public override {
+        require(_balances[msg.sender] >= amount, "You do not have enough ESTR tokens!");
+        _transfer(msg.sender, address(this), amount);
+        payable(msg.sender).transfer(amount);
+        emit Withdrawal(msg.sender, amount);
+    }
 
 
 }
