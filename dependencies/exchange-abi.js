@@ -1,4 +1,5 @@
-window.compAbi = [
+// replace contents here with the Exchange contract ABI 
+window.exchangeAbi = [
     {
         "inputs": [
             {

@@ -4,134 +4,154 @@
 <head>
     <link rel="stylesheet" type="text/css" href="../dependencies/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>XXX By Signature</title>
+    <title>Order off-chain by Signature</title>
 </head>
 
 <body>
-    <h1>Delegate By Signature</h1>
-    <h2>Write Signature</h2>
+    <h1>Off-chain bidding (EIP-712)</h1>
+    <h2>Create signed bid</h2>
     <div id="web3-warning" class="hidden warning">
         Make sure the example app is being served with an HTTP server. <br /> Please install MetaMask: <a href="https://metamask.io/">https://metamask.io/</a>
     </div>
     <div class="card">
         <label>My Address: </label>&nbsp;<span id="my-address"></span>
         <br />
+        <label>Buying amount: </label>&nbsp;<input id="form-amount" type="text" value="1000000000000000000"/>
         <br />
-        <label>Current Delegatee: </label>&nbsp;<span id="my-delegatee"></span>
+        <label>Bid price(in wei; minimum 1 ETH): </label>&nbsp;<input id="form-bid-price" type="text" value="1000000000000000000" />
         <br />
-        <br />
-        <label>Delegate To: </label>&nbsp;<input id="delegate-to" type="text" value="0x1234567890000000000000000000000123456789" />
-        <br />
-        <input id="sign" type="submit" value="Create Delegation Signature" />
+        <input id="sign-button" type="submit" value="Sign bid" />
     </div>
     <h2>Post Transaction</h2>
     <div class="card">
-        <label>Delegatee: </label>&nbsp;<input id="delegatee" type="text" />
+        <label>Buying amount: </label>&nbsp;<span id="my-amount"></span>
         <br />
-        <label>Nonce: </label>&nbsp;<input id="nonce" type="text" />
         <br />
-        <label>Expiry: </label>&nbsp;<input id="expiry" type="text" />
+        <label>Bid price(in wei): </label>&nbsp;<span id="my-bid-price"></span>
         <br />
-        <label>Signature: </label>&nbsp;<input id="signature" type="text" />
         <br />
-        <input id="delegate" type="submit" value="Delegate" />
+        <label>Signature: </label>&nbsp;<span id="my-signature"></span>
+        <br />
+        <input id="submit-order-button" type="submit" value="Send bid" />
     </div>
 </body>
 
+
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.4.0/dist/web3.min.js"></script>
-<script type="text/javascript" src="../dependencies/comp-abi.js"></script>
+<script type="text/javascript" src="../dependencies/exchange-abi.js"></script>
 <script type="text/javascript">
     
+
+    const createOrderBySigMessage = (contractAddress, _amount=2000000000000000000, _bidPrice=1000000000000000000, _chainId = 4) => {
         
-    const msgParams = JSON.stringify({types:
-        {
-            EIP712Domain:[
-                {name: 'name', type: 'string'}, 
-                {name: 'chainId', type: 'uint256'}, 
-                {name: 'verifyingContract', type: 'address'}, 
-            ],
-            Set:[
-                {name: 'sender', type: 'address'}, 
-                {name: 'x', type: 'uint'}, 
-                {name: 'deadline', type: 'uint'}
-            ]
-        },        
-        // replace verifyingContract with deployed contract address
-        primaryType: 'Set',
-        domain: {name: 'SetTest',version:"1",chainId:"4",verifyingContract:""},
-        message: {
-            sender: signer,
-            x: 50,
-            deadline: deadline
+        const domain = [
+        {name: 'name', type: 'string'}, 
+        {name: 'version', type: 'string'}, 
+        {name: 'chainId', type: 'uint256'}, 
+        {name: 'verifyingContract', type: 'address'},
+        ];
+
+        const buy_order = [
+            {name: 'amount', type: 'uint256'}, 
+            {name: 'bidPrice', type: 'uint256'} 
+        ];
+        
+        const domainData = {
+            name:"Token Exchange",
+            version:"1",
+            chainId: _chainId,
+            // To replace verifyingContract with deployed contract address
+            verifyingContract:contractAddress
         }
-    })
+
+        const message = {
+            buy_price : _bidPrice,
+            amount: _amount
+        }
+        
+        return JSON.stringify({
+            types:{
+                EIP712Domain: domain,
+                BuyOrder: buy_order,            
+            },
+            primaryType: "BuyOrder",
+            domain: domainData,
+            message: message
+        });
+
+
+    }
+        
+
+    
+
 
 
     window.addEventListener('load', (event) => {
         let web3;
-        // const web3Warning = document.getElementById('web3-warning');
+        const web3Warning = document.getElementById('web3-warning');
+        // form elements
         const myAddress = document.getElementById('my-address');
-        const myDelegatee = document.getElementById('my-delegatee');
-        const delegateTo = document.getElementById('delegate-to');
-        const sign = document.getElementById('sign');
-        const signature = document.getElementById('signature');
-        const delegate = document.getElementById('delegate');
-        const delegatee = document.getElementById('delegatee');
-        const nonce = document.getElementById('nonce');
-        const expiry = document.getElementById('expiry');
+        const formAmount = document.getElementById('form-amount');
+        const formBidPrice = document.getElementById('form-bid-price');
+        const signButton = document.getElementById('sign-button');
+        // confirm submission elements 
+        const myAmount = document.getElementById('my-amount');
+        const myBidPrice = document.getElementById('my-bid-price');
+        const mySignature = document.getElementById('my-signature');
         const chainId = document.getElementById('chainId');
+        const submitOrderButton = document.getElementById('submit-order-button');
 
-        // const urlParamDelegate = new URLSearchParams(window.location.search).get('delegatee');
-        // if (urlParamDelegate) {
-        //     delegateTo.value = urlParamDelegate;
-        // }
-
-        // if (typeof window.ethereum === 'undefined') {
-        //     console.error('Client does not have an active Web3 provider or the example app is not being run from an HTTP server.');
-        //     console.log('Go here to install MetaMask: https://metamask.io/');
-        //     alert(
-        //         'You need a Web3 provider to run this page. ' +
-        //         'Go here to install MetaMask:\n\n' +
-        //         'https://metamask.io/'
-        //     );
-        //     web3Warning.classList.remove('hidden');
-        // } else {
-        //     main();
-        // }
 
         async function main() {
             const accounts = await window.ethereum.request({
                 method: 'eth_requestAccounts'
             }); // enable ethereum
+            
             web3 = new Web3(window.ethereum);
+            
             const net = +window.ethereum.chainId;
+            // fastest method above.
+            // const net = await window.ethereum.networkVersion;
+            // const net = await window.ethereum.request({method: 'eth_chainId'});
 
-            // // This app only works with Ropsten or Main
-            // if (net !== 1 && net !== 3 && net != 1337) {
-            //     alert('Please select the Main or Ropsten network.');
-            // }
 
-            // if (net === 1 || net === 1337) {
-            //     compAddress = '0xc00e94cb662c3520282e6f5717214004a7f26888';
-            // } else if (net === 3) {
-            //     compAddress = '0xf76d4a441e4ba86a923ce32b89aff89dbccaa075';
-            // }
+            // // This app only works with Rinkeby or Local Hardhat or Ganache
+            if (net !== 4 && net !== 31337 && net != 1337) {
+                alert('Please select the Rinkeby or Hardhat/Ganache network.');
+            }
 
-            const compAbi = window.compAbi;
-            const comp = new web3.eth.Contract(compAbi, compAddress);
+            // add the deployed verifying contract address here. Mainnet || Mainnet-fork 
+            if (net === 1 || net === 1337) {
+                exchangeAddress = '0xc00e94cb662c3520282e6f5717214004a7f26888';
+            } else if (net === 4) {
+                // verifying contractAddress on Rinkeby
+                exchangeAddress = '0xf76d4a441e4ba86a923ce32b89aff89dbccaa075';
+            }
+
+
+            // deployed Exchange contract ABI that is in the dependencies folder and loaded to page above
+            const exchangeAbi = window.exchangeAbi;
+            const exchange = new web3.eth.Contract(exchangeAbi, exchangeAddress);
 
             const myAccount = accounts[0];
-            let currentDelegatee = await comp.methods.delegates(myAccount).call();
-
             myAddress.innerText = myAccount;
-            myDelegatee.innerText = currentDelegatee;
+            
+            // // this calls the contract info, a mapping named delegates:
+            // let currentDelegatee = await comp.methods.delegates(myAccount).call();
 
-            sign.onclick = async() => {
-                const _delegatee = delegateTo.value;
-                const _nonce = await comp.methods.nonces(myAccount).call();
-                const _expiry = 10e9; // expiration of signature, in seconds since unix epoch
+            // Create signature based on information entered, e.g. bid price and amount of ESTR tokens.
+            // e.g. Sign Buy Order (off-chain)
+            signButton.onclick = async() => {
+
+
+                const _amount = formAmount.value;
+                const _bidPrice = formBidPrice.value;
                 const _chainId = window.ethereum.chainId.toString();
-                const msgParams = createDelegateBySigMessage(compAddress, _delegatee, _expiry, _chainId, _nonce);
+                // const msgParams = createDelegateBySigMessage(compAddress, _delegatee, _expiry, _chainId, _nonce);
+                // contractAddress, amount, bidPrice, chainId
+                const msgParams = createOrderBySigMessage(contractAddress, _amount, _bidPrice, _chainId);
+
 
                 window.ethereum.sendAsync({
                     method: 'eth_signTypedData_v4',
@@ -149,17 +169,22 @@
                     }
 
                     const sig = result.result;
-                    delegatee.value = _delegatee;
-                    nonce.value = _nonce;
-                    expiry.value = _expiry;
-                    signature.value = sig;
+                    // display the values on page for confirmation
+                    myAmount.value = _amount;
+                    myBidPrice.value = _bidPrice;
+                    mySignature.value = sig;
 
                     console.log('signature', sig);
                     console.log('msgParams', JSON.parse(msgParams));
+
                 });
             };
 
-            delegate.onclick = async() => {
+            // Test the signature generation code first by deploying the Ester and Exchange contract to Rinkeby
+            // Add the verifying Exchange contract abi code in dependencies/exchange-abi.js
+
+
+            submitOrderButton.onclick = async() => {
                 const _delegatee = delegatee.value;
                 const _nonce = nonce.value;
                 const _expiry = expiry.value;

@@ -18,7 +18,7 @@ async function main() {
 
     console.log("ReceiverExchange deployed to:", exchange.address);
 
-    // Sending ETH to the Ester Token contract
+    // [Test] Sending ETH to the Ester Token contract
     // await addr1.sendTransaction({
     //     to: ester_token.address,
     //     value: ethers.utils.parseEther("2")
@@ -28,7 +28,7 @@ async function main() {
     // console.log("Owner's ester tokens is", transfer_eth_for_ester);
 
 
-    // Testing batch order handling in Exchange/Pool contract
+    // [Test] Testing batch order handling in Exchange/Pool contract
     // await ester_token.transfer(exchange.address, 1000);
 
     // await ester_token.balanceOf(exchange.address);

@@ -11,13 +11,9 @@ contract ReceiverExchange {
 
     address esterToken;
     IEsterToken public EstrContract;
-    // mapping(address => uint256) public balanceOf;
     event BoughtESTR(address indexed sender, uint256 amount);
+    BuyOrder[] buy_orders;
 
-    constructor(address _esterToken) {
-        esterToken = _esterToken;
-        EstrContract = IEsterToken(esterToken);
-    }
 
     struct BuyOrder {
         uint256 amount;
@@ -25,8 +21,11 @@ contract ReceiverExchange {
         address userId;
     }
 
-        
-    BuyOrder[] buy_orders;
+
+    constructor(address _esterToken) {
+        esterToken = _esterToken;
+        EstrContract = IEsterToken(esterToken);
+    }
 
 
     function testBatchOrders() public {
