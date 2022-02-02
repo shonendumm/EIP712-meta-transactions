@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 // pragma abicoder v2;
+// pragma experimental ABIEncoderV2;
+
 
 import "./IEsterToken.sol";
 import "hardhat/console.sol";
@@ -27,14 +29,38 @@ contract ReceiverExchange {
     }
 
 
-    function testBatchOrders() public {
-        BuyOrder memory buy_order1 = BuyOrder(10, 5);
-        BuyOrder memory buy_order2 = BuyOrder(10, 10);
-        console.log("test batch orders");
-        buy_orders.push(buy_order1);
-        buy_orders.push(buy_order2);
-        console.log("orders push to array");
-        _handleBatchOrders(buy_orders);
+    /**
+     * @notice Delegates votes from signatory to `delegatee`
+     * @param delegatee The address to delegate votes to
+     * @param nonce The contract state required to match the signature
+     * @param expiry The time at which to expire the signature
+     * @param v The recovery byte of the signature
+     * @param r Half of the ECDSA signature pair
+     * @param s Half of the ECDSA signature pair
+     */
+    function delegateBySig(address delegatee, uint nonce, uint expiry, uint8 v, bytes32 r, bytes32 s) public {
+        bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), getChainId(), address(this)));
+        bytes32 structHash = keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
+        address signatory = ecrecover(digest, v, r, s);
+        require(signatory != address(0), "Comp::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "Comp::delegateBySig: invalid nonce");
+        require(now <= expiry, "Comp::delegateBySig: signature expired");
+        return _delegate(signatory, delegatee);
+    }
+
+
+// To write a new function that handles each signature based on the above delegateBySig
+
+    function handleEachSignature() public {
+
+
+    }
+
+// To write a new function that handles a batch of signatures transaction.
+
+    function handleBatchSignatures() public {
+        
     }
 
 
@@ -46,6 +72,21 @@ contract ReceiverExchange {
             console.log("All orders handled!");
         }
     }
+
+
+
+
+    function testBatchOrders() public {
+        BuyOrder memory buy_order1 = BuyOrder(10, 5);
+        BuyOrder memory buy_order2 = BuyOrder(10, 10);
+        console.log("test batch orders");
+        buy_orders.push(buy_order1);
+        buy_orders.push(buy_order2);
+        console.log("orders push to array");
+        _handleBatchOrders(buy_orders);
+    }
+
+
 
     function _handleBuyOrderTransaction(BuyOrder memory buy_order) internal returns(bool) {
         console.log("handling order");

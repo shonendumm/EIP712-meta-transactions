@@ -148,7 +148,7 @@
 
             // deployed Exchange contract ABI that is in the dependencies folder and loaded to page above
             const exchangeAbi = window.exchangeAbi;
-            const exchange = new web3.eth.Contract(exchangeAbi, exchangeAddress);
+            const exchangeContract = new web3.eth.Contract(exchangeAbi, exchangeAddress);
 
             const myAccount = accounts[0];
             myAddress.innerText = myAccount;
@@ -208,6 +208,23 @@
                 mySignature.innerText = "Sent!";
                 submitOrderButton.value = "Sent!";
                 console.log(signatures);
+
+                /**
+                // Below is for sending a single signed TX
+                // call the verifying contract's method and make gas transaction to change contract state
+                const tx = await comp.methods.delegateBySig(_delegatee, _nonce, _expiry, v, r, s).send({
+                    from: myAccount,
+                    gasLimit: web3.utils.toHex(1000000),
+                    gasPrice: web3.utils.toHex(25000000000),
+                });
+
+                console.log('delegateBySig Transaction', tx);
+
+                // check the new state of the contract via a read function call
+                currentDelegatee = await comp.methods.delegates(myAccount).call();
+                myDelegatee.innerText = currentDelegatee;
+                console.log(`Now delegated to: ${currentDelegatee}`);
+                **/
             }
 
             function batchSendSignatures() {
@@ -223,25 +240,18 @@
                 console.log('r', r);
                 console.log('s', s);
 
-                // call the verifying contract's method and make gas transaction to change contract state
-                const tx = await comp.methods.delegateBySig(_delegatee, _nonce, _expiry, v, r, s).send({
+                const tx = await exchangeContract.methods.handleBatchSignatures(signatures).send({
                     from: myAccount,
-                    gasLimit: web3.utils.toHex(1000000),
-                    gasPrice: web3.utils.toHex(25000000000),
+                    gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
+                    gasPrice: web3.utils.toHex(20000000000),
                 });
 
-                console.log('delegateBySig Transaction', tx);
-
-                // check the new state of the contract via a read function call
-                currentDelegatee = await comp.methods.delegates(myAccount).call();
-                myDelegatee.innerText = currentDelegatee;
-                console.log(`Now delegated to: ${currentDelegatee}`);
-
+                console.log('tx', tx);
 
             }
 
 
-            // Create a button for admin to send the batch transactions.
+            // Create a button for admin to send the batch transactions, the above function.
 
 
         }
