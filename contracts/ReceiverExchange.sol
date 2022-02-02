@@ -22,6 +22,15 @@ contract ReceiverExchange {
         uint256 bidPrice;
     }
 
+    struct Sig {
+        uint256 amount;
+        uint256 bidPrice;
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+
+    }
+
 
     constructor(address _esterToken) {
         esterToken = _esterToken;
@@ -30,6 +39,7 @@ contract ReceiverExchange {
 
 
     /**
+    * From https://etherscan.io/address/0xc00e94Cb662C3520282E6f5717214004A7f26888#code
      * @notice Delegates votes from signatory to `delegatee`
      * @param delegatee The address to delegate votes to
      * @param nonce The contract state required to match the signature
@@ -52,14 +62,20 @@ contract ReceiverExchange {
 
 // To write a new function that handles each signature based on the above delegateBySig
 
-    function handleEachSignature() public {
+    function handleEachSignature(uint256 _amount, uint256 _bidPrice, uint8 v, bytes32 r, bytes32 s) public {
+
+
 
 
     }
 
-// To write a new function that handles a batch of signatures transaction.
 
-    function handleBatchSignatures() public {
+
+    function handleBatchSignatures(Sig[] memory sigs) public {
+        for (uint i = 0; i < sigs.length; i++) {
+            Sig memory sig = sigs[i];
+            handleEachSignature(sig.amount, sig.bidPrice, sig.v, sig.r, sig.s);
+        }
         
     }
 
