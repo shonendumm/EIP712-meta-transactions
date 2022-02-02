@@ -7,7 +7,7 @@ import "./IEsterToken.sol";
 import "hardhat/console.sol";
 
 
-contract ReceiverExchange {
+contract ReceiverExchangeOld {
 
     address esterToken;
     IEsterToken public EstrContract;
@@ -18,6 +18,7 @@ contract ReceiverExchange {
     struct BuyOrder {
         uint256 amount;
         uint256 bidPrice;
+        address userId;
     }
 
 
@@ -28,8 +29,8 @@ contract ReceiverExchange {
 
 
     function testBatchOrders() public {
-        BuyOrder memory buy_order1 = BuyOrder(10, 5);
-        BuyOrder memory buy_order2 = BuyOrder(10, 10);
+        BuyOrder memory buy_order1 = BuyOrder(10, 5, 0xAFFfbFd63bE181D9B80d78De09Bb3DaEF1e478D7);
+        BuyOrder memory buy_order2 = BuyOrder(10, 10, 0xe815c78c28652D9a03e187183E74A3E462057788);
         console.log("test batch orders");
         buy_orders.push(buy_order1);
         buy_orders.push(buy_order2);
@@ -53,8 +54,7 @@ contract ReceiverExchange {
             return false;
         } else {
             console.log("Order passed require for bidPrice");
-            // temporarily bypass this:
-            // _transferToBuyer(buy_order.userId, buy_order.amount);
+            _transferToBuyer(buy_order.userId, buy_order.amount);
             return true;
         }
     }
@@ -66,7 +66,7 @@ contract ReceiverExchange {
         return EstrContract.transfer(buyer, amount);
     }
 
-    // sometimes writing/testing contracts using remix is faster
+    // testing contracts using remix is faster
     // Using EsterToken function transfer(address recipient, uint256 amount) public returns bool
     // This function doesn't work
     // function contractBuyESTR(uint256 _amount) public payable {
