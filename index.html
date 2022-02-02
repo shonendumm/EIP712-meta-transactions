@@ -22,7 +22,7 @@
         <br />
         <input id="sign-button" type="submit" value="Sign bid" />
     </div>
-    <h2>Post Transaction</h2>
+    <h2>Post Bid</h2>
     <div class="card">
         <label>Buying amount: </label>&nbsp;<span id="my-amount"></span>
         <br />
@@ -32,7 +32,7 @@
         <br />
         <label>Signature: </label>&nbsp;<span id="my-signature"></span>
         <br />
-        <input id="submit-order-button" type="submit" value="Send bid" />
+        <input id="submit-order-button" type="submit" value="Post bid" />
     </div>
 </body>
 
@@ -47,9 +47,6 @@
         console.log("createOrderBySigMessage called");
         const domain = [{
             name: 'name',
-            type: 'string'
-        }, {
-            name: 'version',
             type: 'string'
         }, {
             name: 'chainId',
@@ -69,9 +66,7 @@
 
         const domainData = {
             name: "Token Exchange",
-            version: "1",
             chainId: _chainId,
-            // To replace verifyingContract with deployed contract address
             verifyingContract: exchangeAddress
         }
 
@@ -158,6 +153,8 @@
 
             // Create signature based on information entered, e.g. bid price and amount of ESTR tokens.
             // e.g. Sign Buy Order (off-chain)
+
+
             signButton.onclick = async() => {
 
                 console.log("signButton clicked!");
@@ -168,9 +165,7 @@
                 console.log("Form bidPrice:", _bidPrice);
                 console.log("ChainId: ", _chainId);
 
-
                 const msgParams = createOrderBySigMessage(exchangeAddress, _amount, _bidPrice, _chainId);
-
 
                 window.ethereum.sendAsync({
                     method: 'eth_signTypedData_v4',
@@ -197,40 +192,15 @@
                     console.log('signature', sig);
                     console.log('msgParams', JSON.parse(msgParams));
 
+
                 });
             }
-            const signatures = [];
+            const BUY_ORDERS_ARRAY = [];
 
             submitOrderButton.onclick = () => {
-                signatures.push(mySignature.innerText);
-                myAmount.innerText = "Sent!";
-                myBidPrice.innerText = "Sent!";
-                mySignature.innerText = "Sent!";
-                submitOrderButton.value = "Sent!";
-                console.log(signatures);
 
-                /**
-                // Below is for sending a single signed TX
-                // call the verifying contract's method and make gas transaction to change contract state
-                const tx = await comp.methods.delegateBySig(_delegatee, _nonce, _expiry, v, r, s).send({
-                    from: myAccount,
-                    gasLimit: web3.utils.toHex(1000000),
-                    gasPrice: web3.utils.toHex(25000000000),
-                });
-
-                console.log('delegateBySig Transaction', tx);
-
-                // check the new state of the contract via a read function call
-                currentDelegatee = await comp.methods.delegates(myAccount).call();
-                myDelegatee.innerText = currentDelegatee;
-                console.log(`Now delegated to: ${currentDelegatee}`);
-                **/
-            }
-
-            function batchSendSignatures() {
-
-
-                var sig = signatures[0];
+                let sig = mySignature.innerText;
+                console.log("Signature", sig);
 
                 const r = '0x' + sig.substring(2).substring(0, 64);
                 const s = '0x' + sig.substring(2).substring(64, 128);
@@ -240,7 +210,34 @@
                 console.log('r', r);
                 console.log('s', s);
 
-                const tx = await exchangeContract.methods.handleBatchSignatures(signatures).send({
+                let _amount = myAmount.innerText;
+                let _bidPrice = myBidPrice.innerText;
+                console.log("Amount and BidPrice", _amount, _bidPrice);
+
+                //     signatures.push({ delegatee, nonce, expiry, v, r, s });
+
+                BUY_ORDERS_ARRAY.push({
+                    myAccount,
+                    _amount,
+                    _bidPrice,
+                    v,
+                    r,
+                    s
+                });
+
+                myAmount.innerText = "";
+                myBidPrice.innerText = "";
+                mySignature.innerText = "";
+                console.log(BUY_ORDERS_ARRAY);
+
+
+            }
+
+            // Create a button for admin to send the batch transactions, the above function.
+            // and a timer for triggering the batch send function
+            async function batchSendOrders() {
+                // remember to deploy contract again before testing this because contract updated
+                const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
                     from: myAccount,
                     gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
                     gasPrice: web3.utils.toHex(20000000000),
@@ -251,8 +248,6 @@
             }
 
 
-            // Create a button for admin to send the batch transactions, the above function.
-
 
         }
 
@@ -260,6 +255,24 @@
 
 
     };
+
+
+    /**
+             // Below is for sending a single signed TX
+             // call the verifying contract's method and make gas transaction to change contract state
+             const tx = await comp.methods.delegateBySig(_delegatee, _nonce, _expiry, v, r, s).send({
+                 from: myAccount,
+                 gasLimit: web3.utils.toHex(1000000),
+                 gasPrice: web3.utils.toHex(25000000000),
+             });
+
+             console.log('delegateBySig Transaction', tx);
+
+             // check the new state of the contract via a read function call
+             currentDelegatee = await comp.methods.delegates(myAccount).call();
+             myDelegatee.innerText = currentDelegatee;
+             console.log(`Now delegated to: ${currentDelegatee}`);
+             **/
 </script>
 
 

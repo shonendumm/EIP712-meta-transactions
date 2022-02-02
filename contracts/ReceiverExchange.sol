@@ -21,20 +21,21 @@ contract ReceiverExchange {
         uint256 amount;
         uint256 bidPrice;
     }
-
-    struct Sig {
+    
+    struct EachBuyOrder {
+        address account;
         uint256 amount;
         uint256 bidPrice;
         uint8 v;
         bytes32 r;
         bytes32 s;
-
     }
 
-        /// @notice The EIP-712 typehash for the contract's domain
-    bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
 
-    /// @notice The EIP-712 typehash for the delegation struct used by the contract
+    // @notice The EIP-712 typehash for the contract's domain
+    bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address exchangeAddress)");
+
+    // @notice The EIP-712 typehash for the delegation struct used by the contract
     bytes32 public constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
 
@@ -65,10 +66,11 @@ contract ReceiverExchange {
         return _delegate(signatory, delegatee);
     }
 
-
+// CONTINUE TOMORROW: THURSDAY
 // To write a new function that handles each signature based on the above delegateBySig
 
-    function handleEachSignature(uint256 _amount, uint256 _bidPrice, uint8 v, bytes32 r, bytes32 s) public {
+    function handleEachOrder(uint256 _amount, uint256 _bidPrice, uint8 v, bytes32 r, bytes32 s) public {
+        bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), getChainId(), address(this)));
 
 
 
@@ -76,37 +78,37 @@ contract ReceiverExchange {
     }
 
 
-
-    function handleBatchSignatures(Sig[] memory sigs) public {
-        for (uint i = 0; i < sigs.length; i++) {
-            Sig memory sig = sigs[i];
-            handleEachSignature(sig.amount, sig.bidPrice, sig.v, sig.r, sig.s);
+    function handleBatchOrders(EachBuyOrder[] memory _batchOrders) public {
+        for (uint i = 0; i < _batchOrders.length; i++) {
+            EachBuyOrder memory order = _batchOrders[i];
+            handleEachOrder(order.account, order.amount, order.bidPrice, order.v, order.r, order.s);
         }
         
     }
 
 
-    function _handleBatchOrders(BuyOrder[] memory batchBuyOrders) internal {
-        for (uint256 i = 0; i < batchBuyOrders.length; i++) {
-            BuyOrder memory buy_order = batchBuyOrders[i];  
-            console.log("handling order in batch order");
-            _handleBuyOrderTransaction(buy_order);
-            console.log("All orders handled!");
-        }
-    }
+    // old function that tested okay
+    // function _handleBatchOrders(BuyOrder[] memory batchBuyOrders) internal {
+    //     for (uint256 i = 0; i < batchBuyOrders.length; i++) {
+    //         BuyOrder memory buy_order = batchBuyOrders[i];  
+    //         console.log("handling order in batch order");
+    //         _handleBuyOrderTransaction(buy_order);
+    //         console.log("All orders handled!");
+    //     }
+    // }
 
 
 
-
-    function testBatchOrders() public {
-        BuyOrder memory buy_order1 = BuyOrder(10, 5);
-        BuyOrder memory buy_order2 = BuyOrder(10, 10);
-        console.log("test batch orders");
-        buy_orders.push(buy_order1);
-        buy_orders.push(buy_order2);
-        console.log("orders push to array");
-        _handleBatchOrders(buy_orders);
-    }
+    // tested runs okay
+    // function testBatchOrders() public {
+    //     BuyOrder memory buy_order1 = BuyOrder(10, 5);
+    //     BuyOrder memory buy_order2 = BuyOrder(10, 10);
+    //     console.log("test batch orders");
+    //     buy_orders.push(buy_order1);
+    //     buy_orders.push(buy_order2);
+    //     console.log("orders push to array");
+    //     _handleBatchOrders(buy_orders);
+    // }
 
 
 
@@ -116,8 +118,7 @@ contract ReceiverExchange {
             return false;
         } else {
             console.log("Order passed require for bidPrice");
-            // temporarily bypass this:
-            // _transferToBuyer(buy_order.userId, buy_order.amount);
+            _transferToBuyer(buy_order.userId, buy_order.amount);
             return true;
         }
     }
@@ -129,15 +130,16 @@ contract ReceiverExchange {
         return EstrContract.transfer(buyer, amount);
     }
 
-    // sometimes writing/testing contracts using remix is faster
-    // Using EsterToken function transfer(address recipient, uint256 amount) public returns bool
-    // This function doesn't work
-    // function contractBuyESTR(uint256 _amount) public payable {
-    //     payable(address(EstrContract)).transfer(_amount);
-    // }
 
     receive() external payable {
 
+    }
+
+
+    function getChainId() internal pure returns (uint) {
+        uint256 chainId;
+        assembly { chainId := chainid() }
+        return chainId;
     }
 
 
@@ -158,11 +160,52 @@ function delegateBySig(address delegatee, uint nonce, uint expiry, uint8 v, byte
     }
 
 
-    function getChainId() internal pure returns (uint) {
-        uint256 chainId;
-        assembly { chainId := chainid() }
-        return chainId;
-    }
+
 
  */
 
+
+
+/** 
+https://medium.com/metamask/eip712-is-coming-what-to-expect-and-how-to-use-it-bb92fd1a7a26
+    string private constant IDENTITY_TYPE = "Identity(uint256 userId,address wallet)";
+    string private constant BID_TYPE = "Bid(uint256 amount,Identity bidder)Identity(uint256 userId,address wallet)";
+    uint256 constant chainId = 1;
+    address constant verifyingContract = 0x1C56346CD2A2Bf3202F771f50d3D14a367B48070;
+    bytes32 constant salt = 0xf2d857f4a3edcb9b78b4d503bfe733db1e3f6cdc2b7971ee739626c97e86a558;
+    string private constant EIP712_DOMAIN = "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)";
+
+    bytes32 private constant DOMAIN_SEPARATOR = keccak256(abi.encode(
+        EIP712_DOMAIN_TYPEHASH,
+        keccak256("My amazing dApp"),
+        keccak256("2"),
+        chainId,
+        verifyingContract,
+        salt
+    ));
+
+
+    function hashIdentity(Identity identity) private pure returns (bytes32) {
+        return keccak256(abi.encode(
+            IDENTITY_TYPEHASH,
+            identity.userId,
+            identity.wallet
+        ));
+    }
+
+    function hashBid(Bid memory bid) private pure returns (bytes32){
+        return keccak256(abi.encodePacked(
+            "\\x19\\x01",
+        DOMAIN_SEPARATOR,
+        keccak256(abi.encode(
+                BID_TYPEHASH,
+                bid.amount,
+                hashIdentity(bid.bidder)
+            ))
+        ));
+    }
+
+    function verify(address signer, Bid memory bid, sigR, sigS, sigV) public pure returns (bool) {
+        return signer == ecrecover(hashBid(bid), sigV, sigR, sigS);
+    }
+*/
