@@ -215,9 +215,27 @@
 
                 var sig = signatures[0];
 
+                const r = '0x' + sig.substring(2).substring(0, 64);
+                const s = '0x' + sig.substring(2).substring(64, 128);
+                const v = '0x' + sig.substring(2).substring(128, 130);
 
+                console.log('v', v);
+                console.log('r', r);
+                console.log('s', s);
 
+                // call the verifying contract's method and make gas transaction to change contract state
+                const tx = await comp.methods.delegateBySig(_delegatee, _nonce, _expiry, v, r, s).send({
+                    from: myAccount,
+                    gasLimit: web3.utils.toHex(1000000),
+                    gasPrice: web3.utils.toHex(25000000000),
+                });
 
+                console.log('delegateBySig Transaction', tx);
+
+                // check the new state of the contract via a read function call
+                currentDelegatee = await comp.methods.delegates(myAccount).call();
+                myDelegatee.innerText = currentDelegatee;
+                console.log(`Now delegated to: ${currentDelegatee}`);
 
 
             }
