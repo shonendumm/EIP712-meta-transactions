@@ -32,7 +32,12 @@
         <br />
         <label>Signature: </label>&nbsp;<span id="my-signature"></span>
         <br />
-        <input id="submit-order-button" type="submit" value="Post bid" />
+        <input id="submit-order-button" type="submit" value="Confirm and Save bid" />
+        <br />
+        <br />
+    </div>
+    <div>
+        <button id="send-batch-orders-button">Send batch orders manually</button>
     </div>
 </body>
 
@@ -108,6 +113,7 @@
         const mySignature = document.getElementById('my-signature');
         const chainId = document.getElementById('chainId');
         const submitOrderButton = document.getElementById('submit-order-button');
+        const sendBatchOrdersButton = document.getElementById('send-batch-orders-button');
 
         console.log("page loaded!")
 
@@ -248,6 +254,16 @@
 
                 console.log('tx', tx);
 
+            }
+
+            sendBatchOrdersButton.onclick = async() => {
+                const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
+                    from: myAccount,
+                    gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
+                    gasPrice: web3.utils.toHex(20000000000),
+                });
+
+                console.log('tx', tx);
             }
 
 
