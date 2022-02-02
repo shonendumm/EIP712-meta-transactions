@@ -18,11 +18,6 @@ contract ReceiverExchange {
 
 
     struct BuyOrder {
-        uint256 amount;
-        uint256 bidPrice;
-    }
-    
-    struct EachBuyOrder {
         address account;
         uint256 amount;
         uint256 bidPrice;
@@ -30,13 +25,13 @@ contract ReceiverExchange {
         bytes32 r;
         bytes32 s;
     }
-
-
+    
     // @notice The EIP-712 typehash for the contract's domain
     bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address exchangeAddress)");
 
     // @notice The EIP-712 typehash for the delegation struct used by the contract
-    bytes32 public constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+    // bytes32 public constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
+    bytes32 public constant BUY_ORDER_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
 
 
     constructor(address _esterToken) {
@@ -78,9 +73,9 @@ contract ReceiverExchange {
     }
 
 
-    function handleBatchOrders(EachBuyOrder[] memory _batchOrders) public {
+    function handleBatchOrders(BuyOrder[] memory _batchOrders) public {
         for (uint i = 0; i < _batchOrders.length; i++) {
-            EachBuyOrder memory order = _batchOrders[i];
+            BuyOrder memory order = _batchOrders[i];
             handleEachOrder(order.account, order.amount, order.bidPrice, order.v, order.r, order.s);
         }
         

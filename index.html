@@ -39,11 +39,10 @@
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.4.0/dist/web3.min.js"></script>
 <script type="text/javascript" src="../dependencies/exchange-abi.js"></script>
-<!-- <script type="text/javascript" src="index.js" defer></script> -->
 
 
 <script type="text/javascript">
-    const createOrderBySigMessage = (exchangeAddress, _amount = 2000000000000000000, _bidPrice = 1000000000000000000, _chainId = 4) => {
+    const createOrderBySigMessage = (exchangeAddress, _account = myAccount, _amount = 2000000000000000000, _bidPrice = 1000000000000000000, _chainId = 4) => {
         console.log("createOrderBySigMessage called");
         const domain = [{
             name: 'name',
@@ -57,6 +56,9 @@
         }, ];
 
         const buy_order = [{
+            name: 'account',
+            type: 'address'
+        }, {
             name: 'amount',
             type: 'uint256'
         }, {
@@ -71,6 +73,7 @@
         }
 
         const message = {
+            account: _account,
             amount: _amount,
             bidPrice: _bidPrice
         }
@@ -117,6 +120,9 @@
                 method: 'eth_requestAccounts'
             }); // enable ethereum
 
+            const myAccount = accounts[0];
+            myAddress.innerText = myAccount;
+
             web3 = new Web3(window.ethereum);
 
             const net = +window.ethereum.chainId;
@@ -145,9 +151,6 @@
             const exchangeAbi = window.exchangeAbi;
             const exchangeContract = new web3.eth.Contract(exchangeAbi, exchangeAddress);
 
-            const myAccount = accounts[0];
-            myAddress.innerText = myAccount;
-
             // // this calls the contract info, a mapping named delegates:
             // let currentDelegatee = await comp.methods.delegates(myAccount).call();
 
@@ -165,7 +168,7 @@
                 console.log("Form bidPrice:", _bidPrice);
                 console.log("ChainId: ", _chainId);
 
-                const msgParams = createOrderBySigMessage(exchangeAddress, _amount, _bidPrice, _chainId);
+                const msgParams = createOrderBySigMessage(exchangeAddress, myAccount, _amount, _bidPrice, _chainId);
 
                 window.ethereum.sendAsync({
                     method: 'eth_signTypedData_v4',
