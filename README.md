@@ -1,17 +1,22 @@
-# Token Exchange using EIP-712 signed off-chain transactions
+# Token Exchange relay with EIP-712 signed off-chain (gasless) transactions
 
 
 ## What is this app about?
 
 Token Exchange accepts off-chain ERC712 signed bids from users to buy Ester ERC20 tokens ("ESTR"). 
-It makes gasless transactions for them since they don't pay.
+It batches their bids and makes gasless transactions for them.
 
-Token Exchange consists of a webpage where users submit bids, signed by their metamask wallets.
-Every 30 seconds, their Buy bids are auto-batched sent to the Token Exchange blockchain contract for verification.
-Once verified, the Token Exchange executes transfer of ESTR tokens to the end-buyers. 
-(The Exchange holds a starting amount of ESTR tokens which it sells to the buyers.)
+### How it works (roughly)
 
-End-buyers can go to the ESTR token contract (on rinkeby etherscan) and check their balance using their wallet addresses.
+Users submit bids on the page, signed/encrypted with their metamask wallets/private keys.
+
+Every 30 seconds, their Buy bids are auto-batched sent to the Token Exchange blockchain contract for decoding/verification.
+
+Once verified on-chain based on EIP-712 standards, the Token Exchange executes transfer of ESTR tokens to the end-buyers. (The Exchange holds a starting amount of ESTR tokens which it sells to the buyers.)
+
+End-buyers can go to the ESTR token contract and check their balance with their wallet addresses.
+
+## What is ESTER (ESTR) token?
 
 ESTR Token is an ERC-20 token, denominated to 18 decimals, similar to ETH. 
 It has a 1:1 ratio with ETH. You can send the contract ETH to get ESTR tokens. Just like WETH.
@@ -21,9 +26,9 @@ It has a 1:1 ratio with ETH. You can send the contract ETH to get ESTR tokens. J
 
 ESTR contract has been deployed on rinkeby: https://rinkeby.etherscan.io/address/0xe0427767282c793feb3896d048395ff543dbcab2
 
-Token Exchange contact deployed on rinkeby: https://rinkeby.etherscan.io/address/0xadd39d12ad9b8ffe3dcb48ac3822b94dd1308d2e
+Token Exchange contact is deployed on rinkeby: https://rinkeby.etherscan.io/address/0xadd39d12ad9b8ffe3dcb48ac3822b94dd1308d2e
 
-### To try the app with these deployed contracts:
+### To try the app with the already-deployed contracts:
 1. Git clone or download this project.
 cd into project using terminal.
 
