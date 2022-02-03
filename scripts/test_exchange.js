@@ -21,7 +21,8 @@ async function main() {
 
 
 
-
+    // Rough manual testing of early deployments of the contracts
+    // Don't think it works now. Might try writing proper tests in future.
     // [Test] Sending ETH to the Ester Token contract
     // await addr1.sendTransaction({
     //     to: ester_token.address,

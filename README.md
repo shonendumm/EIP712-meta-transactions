@@ -1,36 +1,61 @@
-# Basic Sample Hardhat Project
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+# Token Exchange using EIP-712 signed off-chain transactions
 
 
-# What is this app about?
+## What is this app about?
 
-Ester Token is an ERC-20 token, denominated to 18 decimals, similar to ETH. 
+Token Exchange accepts off-chain ERC712 signed bids from users to buy Ester ERC20 tokens ("ESTR"). 
+It makes gasless transactions for them since they don't pay.
+
+Token Exchange consists of a webpage where users submit bids, signed by their metamask wallets.
+Every 30 seconds, their Buy bids are auto-batched sent to the Token Exchange blockchain contract for verification.
+Once verified, the Token Exchange executes transfer of ESTR tokens to the end-buyers. 
+(The Exchange holds a starting amount of ESTR tokens which it sells to the buyers.)
+
+End-buyers can go to the ESTR token contract (on rinkeby etherscan) and check their balance using their wallet addresses.
+
+ESTR Token is an ERC-20 token, denominated to 18 decimals, similar to ETH. 
 It has a 1:1 ratio with ETH. You can send the contract ETH to get ESTR tokens. Just like WETH.
 
-Token Exchange is an blockchain contract that accepts off-chain signed bids from users to buy Ester tokens.
+
+## How to try the deployed app
+
+ESTR contract has been deployed on rinkeby: https://rinkeby.etherscan.io/address/0xe0427767282c793feb3896d048395ff543dbcab2
+
+Token Exchange contact deployed on rinkeby: https://rinkeby.etherscan.io/address/0xadd39d12ad9b8ffe3dcb48ac3822b94dd1308d2e
+
+### To try the app with these deployed contracts:
+Git clone or download this project.
+cd into project using terminal.
+
+then run using nodejs:
+`http-server`
+
+(You might need to run `npm install` first.)
+
+Then, go to page http://127.0.0.1:8080/ in your browser.
+
+Make sure your metamask wallet is on Rinkeby network, else switch to it, and reload webpage.
+
+#### How to use app:
+Create your bids using the form.
+Click Sign bid, then sign with your metamask account.
+Then click Post bid to confirm and save it in the system/page.
+
+You can then switch to another account in your metamask to send another transaction.
+Or use the same account. You do not pay any gas. 
+
+The page will auto-send transaction batches using its own wallet. Under "dependencies/server-wallet.js".
+
+When this wallet runs out of rinkeby eth, you can send more to it using https://faucets.chain.link/rinkeby 
+The server wallet's address is 0xAFFfbFd63bE181D9B80d78De09Bb3DaEF1e478D7
 
 
-
-
-# How to deploy and test
+## How to deploy your own app on Rinkeby
 
 Compile the contracts: 
 `npx hardhat compile`
 
-Copy the compiled token exchange contract's abi to "dependencies/exchange-abi.js"
+Copy the compiled token exchange contract's abi into "dependencies/exchange-abi.js"
 
 
 Deploy both contracts (Ester Token and Token Exchange) to rinkeby network:
@@ -39,17 +64,17 @@ Deploy both contracts (Ester Token and Token Exchange) to rinkeby network:
 Copy the deployed EsterToken contract address and paste it in the address here to verify the contract. 
 `npx hardhat verify 0xE0427767282C793feb3896d048395ff543DBcAB2 --network rinkeby`
 
-If you encounter a ENOENT error while verifying, run: `npx hardhat clean` and then run the above verification command again.
+If you encounter a ENOENT error while verifying, run `npx hardhat clean` and then run the above verification command again.
 
 Optional: If you like, you can also verify the exchange contract, passing it the EsterToken contract address as an argument, e.g.:
 `npx hardhat verify 0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E --network rinkeby 0xE0427767282C793feb3896d048395ff543DBcAB2`
 
 After verification, go to rinkeby etherscan for the ESTR contract and transfer ESTER tokens to the Token Exchange contracy.
-Use Write Contract to transfer 500000000000000000000 (500 tokens) to the Exchange contract.
+Use Write Contract method to transfer 500000000000000000000 (500 tokens) to the Exchange contract.
+This is to give the Exchange some ESTR tokens, so that it can carry out user bid transactions.
 
-This is to give the Exchange some ESTR tokens in its pool, so that it can carry out user bid transactions.
-
-Copy the token exchange contract address and paste to "index.html" (line 151). This is so that our index.html webpage can sign and send to the Token Exchange contract. Remember to save.
+Copy the deployed token exchange contract address and paste to "index.html" (line 152). 
+This is so that the index.html webpage can sign and send to the Token Exchange contract. Remember to save.
 
 Then, run the page server:
 `http-server`
@@ -58,14 +83,32 @@ Open your chrome browser (with metamask set to Rinkeby) http://127.0.0.1:8080
 
 Enter your amounts or just use the default amounts. The default amounts will pass. 
 The minimum bid price is 10, yes just 10. You can change this in the Token Exchange contract (but run all the above steps again).
-There is no minimum amount to buy. The default is 1000000000000000000, which is 1 ESTER fter applying decimals on it.
+There is no minimum amount to buy. The default is 1000000000000000000, which is 1 ESTER after applying decimals (18) on it.
 
 Click "Sign bid", then remember to "Confirm and save bid".
 
-Then click "Send batch orders manually".
-
-This will prompt metamask to ask you to pay the gas fees to send the batched transactions. Because your account is connected to metamask as the sender.
+Then click "Send batch orders manually" or wait 30 seconds for bids to send automatically.
 
 Then you can go to rinkeby.etherscan to see the Token Exchange contract, under Events, it will indicate that your user has bought Ester tokens.
 
+You can verify your wallet balance by "reading" the ESTR token contract on Rinkeby.
 
+
+## Limitations of this project
+Due to limited time/knowledge (because I only started learning Hardhat a week ago; prior to that I was learning Brownie (python))
+
+- I did not write user input verification in the frontend. Just some verification of user input in the smart contract, e.g. minimum bid price.
+- This isn't a dynamic app with a server, nor is it a safe app. I need some time to pick up nodejs/express.
+- There are no formally written tests for the contracts. Though I did test them with console log and observation of the results of transactions/functions.
+
+This project is mainly for learning and demo purposes.
+
+
+## References
+Without which this demo will not be possible. I referenced from Compound's method for EIP-712 transactions. 
+Specifically their delegation of signatures.
+https://medium.com/compound-finance/delegation-and-voting-with-eip-712-signatures-a636c9dfec5e
+
+Plus:
+https://medium.com/metamask/eip712-is-coming-what-to-expect-and-how-to-use-it-bb92fd1a7a26
+https://medium.com/coinmonks/eip712-a-full-stack-example-e12185b03d54 
