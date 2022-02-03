@@ -24,44 +24,55 @@ ESTR contract has been deployed on rinkeby: https://rinkeby.etherscan.io/address
 Token Exchange contact deployed on rinkeby: https://rinkeby.etherscan.io/address/0xadd39d12ad9b8ffe3dcb48ac3822b94dd1308d2e
 
 ### To try the app with these deployed contracts:
-Git clone or download this project.
+1. Git clone or download this project.
 cd into project using terminal.
 
-then run using nodejs:
+2. then run using nodejs:
 `http-server`
 
 (You might need to run `npm install` first.)
 
-Then, go to page http://127.0.0.1:8080/ in your browser.
+3. Then, go to page http://127.0.0.1:8080/ in your browser.
 
 Make sure your metamask wallet is on Rinkeby network, else switch to it, and reload webpage.
 
-#### How to use app:
-Create your bids using the form.
-Click Sign bid, then sign with your metamask account.
-Then click Post bid to confirm and save it in the system/page.
+
+4. Create your bids using the form.
+
+5. Click Sign bid, then sign with your metamask account.
+
+6. Then click Post bid to confirm and save it in the system/page.
 
 You can then switch to another account in your metamask to send another transaction.
 Or use the same account. You do not pay any gas. 
 
 The page will auto-send transaction batches using its own wallet. Under "dependencies/server-wallet.js".
 
-When this wallet runs out of rinkeby eth, you can send more to it using https://faucets.chain.link/rinkeby 
-The server wallet's address is 0xAFFfbFd63bE181D9B80d78De09Bb3DaEF1e478D7
+>Note: 
+>When this wallet runs out of rinkeby eth, you can send more to it using https://faucets.chain.link/rinkeby 
+>The server wallet's address is 0xAFFfbFd63bE181D9B80d78De09Bb3DaEF1e478D7
 
 
 ## How to deploy your own app on Rinkeby
 
-Compile the contracts: 
+1. Add your own .env file with these:
+`
+ETHERSCAN_TOKEN=[your etherscan api]
+RINKEBY_RPC_URL=[your infura or alchemy node set to ethereum for deploying contracts]
+PRIVATE_KEY=[your metamask wallet's private key]
+`
+
+2. Compile the contracts: 
 `npx hardhat compile`
 
-Copy the compiled token exchange contract's abi into "dependencies/exchange-abi.js"
+3. Copy the compiled token exchange contract's abi (from "artifacts/contracts/TokenExchange.sol/TokenExchange.json") into "dependencies/exchange-abi.js".
+Use the existing file for reference.
 
 
-Deploy both contracts (Ester Token and Token Exchange) to rinkeby network:
+4. Deploy both contracts (Ester Token and Token Exchange) to rinkeby network:
 `npx hardhat run scripts/deploy_token_exchange.js --network rinkeby`
 
-Copy the deployed EsterToken contract address and paste it in the address here to verify the contract. 
+5. Copy the deployed EsterToken contract address and paste it in the address here to verify the contract. 
 `npx hardhat verify 0xE0427767282C793feb3896d048395ff543DBcAB2 --network rinkeby`
 
 If you encounter a ENOENT error while verifying, run `npx hardhat clean` and then run the above verification command again.
@@ -69,27 +80,30 @@ If you encounter a ENOENT error while verifying, run `npx hardhat clean` and the
 Optional: If you like, you can also verify the exchange contract, passing it the EsterToken contract address as an argument, e.g.:
 `npx hardhat verify 0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E --network rinkeby 0xE0427767282C793feb3896d048395ff543DBcAB2`
 
-After verification, go to rinkeby etherscan for the ESTR contract and transfer ESTER tokens to the Token Exchange contracy.
-Use Write Contract method to transfer 500000000000000000000 (500 tokens) to the Exchange contract.
+6. After verification, go to rinkeby etherscan for the ESTR contract and transfer ESTER tokens to the Token Exchange contracy.
+
+Use Write Contract method to transfer 500000000000000000000 (500 tokens) or more, to the Exchange contract.
 This is to give the Exchange some ESTR tokens, so that it can carry out user bid transactions.
 
-Copy the deployed token exchange contract address and paste to "index.html" (line 152). 
+7. Copy the deployed token exchange contract address and paste to "index.html" (line 152). 
 This is so that the index.html webpage can sign and send to the Token Exchange contract. Remember to save.
 
-Then, run the page server:
-`http-server`
+8. Then, run the page server using:
+`http-server -p 8080`
 
-Open your chrome browser (with metamask set to Rinkeby) http://127.0.0.1:8080
+9. Open your chrome browser (with metamask set to Rinkeby) http://127.0.0.1:8080
+
+10. Interact with the web app page.
 
 Enter your amounts or just use the default amounts. The default amounts will pass. 
-The minimum bid price is 10, yes just 10. You can change this in the Token Exchange contract (but run all the above steps again).
-There is no minimum amount to buy. The default is 1000000000000000000, which is 1 ESTER after applying decimals (18) on it.
 
-Click "Sign bid", then remember to "Confirm and save bid".
+The minimum bid price is 10, yes just 10. You can change this in the Token Exchange contract (but run all the above steps again). There is no minimum amount to buy. The default is 1000000000000000000, which is 1 ESTER after applying decimals (18) on it.
 
-Then click "Send batch orders manually" or wait 30 seconds for bids to send automatically.
+11. Click "Sign bid", then remember to "Confirm and save bid".
 
-Then you can go to rinkeby.etherscan to see the Token Exchange contract, under Events, it will indicate that your user has bought Ester tokens.
+12. Then click "Send batch orders manually" or wait 30 seconds for bids to send automatically.
+
+13. Then you can go to rinkeby.etherscan to see the Token Exchange contract, under Events, it will indicate that your user has bought Ester tokens.
 
 You can verify your wallet balance by "reading" the ESTR token contract on Rinkeby.
 
