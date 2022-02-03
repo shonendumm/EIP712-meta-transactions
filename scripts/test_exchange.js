@@ -18,6 +18,10 @@ async function main() {
 
     console.log("ReceiverExchange deployed to:", exchange.address);
 
+
+
+
+
     // [Test] Sending ETH to the Ester Token contract
     // await addr1.sendTransaction({
     //     to: ester_token.address,
@@ -43,7 +47,7 @@ async function main() {
 
 
 
-    
+
 }
 
 main()

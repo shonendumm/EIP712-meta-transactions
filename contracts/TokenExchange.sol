@@ -9,7 +9,7 @@ import "./IEsterToken.sol";
 import "hardhat/console.sol";
 
 
-contract ReceiverExchange {
+contract TokenExchange {
 
     address esterToken;
     IEsterToken public EstrContract;
@@ -28,7 +28,7 @@ contract ReceiverExchange {
     }
     
     // @notice The EIP-712 typehash for the contract's domain
-    bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address exchangeAddress)");
+    bytes32 public constant DOMAIN_TYPEHASH = keccak256("EIP712Domain(string name,uint256 chainId,address verifyingContract)");
 
     // @notice The EIP-712 typehash for the delegation struct used by the contract
     // bytes32 public constant DELEGATION_TYPEHASH = keccak256("Delegation(address delegatee,uint256 nonce,uint256 expiry)");
@@ -41,8 +41,17 @@ contract ReceiverExchange {
     }
 
 
+    function handleEachOrder(address _account, uint256 _amount, uint256 _bidPrice, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
+        bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), getChainId(), address(this)));
+        bytes32 structHash = keccak256(abi.encode(ORDER_TYPEHASH, _account, _amount, _bidPrice));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
+        // need to check this: ecrecover should return the public key of the buyer.
+        address buyer_account = ecrecover(digest, v, r, s);
+        require(buyer_account == _account, "Not same account!" );
+        require(buyer_account != address(0), "Invalid signature: address 0x");
+        return _handleBuyOrderTransaction(buyer_account,_amount,_bidPrice);
+    }
 
-// CONTINUE TOMORROW: THURSDAY - Deploy this contract and test
 
 
 
@@ -53,16 +62,11 @@ contract ReceiverExchange {
         }
     }
 
-    function handleEachOrder(address _account, uint256 _amount, uint256 _bidPrice, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
-        bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), getChainId(), address(this)));
-        bytes32 structHash = keccak256(abi.encode(ORDER_TYPEHASH, _account, _amount, _bidPrice));
-        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
-        // need to check this: ecrecover should return the public key of the buyer.
-        address buyer_account = ecrecover(digest, v, r, s);
-        require(buyer_account == _account, "Not same account!" );
-        require(buyer_account != address(0), "Invalid signature: address 0x");
-        return _handleBuyOrderTransaction(_account,_amount,_bidPrice);
-    }
+
+
+
+
+
 
     function _handleBuyOrderTransaction(address _account, uint256 _amount, uint256 _bidPrice) internal returns(bool) {
         console.log("handling order");
@@ -96,30 +100,13 @@ contract ReceiverExchange {
 }
 
 
-/**
-
-function delegateBySig(address delegatee, uint nonce, uint expiry, uint8 v, bytes32 r, bytes32 s) public {
-        bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), getChainId(), address(this)));
-        bytes32 structHash = keccak256(abi.encode(DELEGATION_TYPEHASH, delegatee, nonce, expiry));
-        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
-        address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "Comp::delegateBySig: invalid signature");
-        require(nonce == nonces[signatory]++, "Comp::delegateBySig: invalid nonce");
-        require(now <= expiry, "Comp::delegateBySig: signature expired");
-        return _delegate(signatory, delegatee);
-    }
-
-
-
-
- */
-
-
 
 /** 
 https://medium.com/metamask/eip712-is-coming-what-to-expect-and-how-to-use-it-bb92fd1a7a26
     string private constant IDENTITY_TYPE = "Identity(uint256 userId,address wallet)";
     string private constant BID_TYPE = "Bid(uint256 amount,Identity bidder)Identity(uint256 userId,address wallet)";
+    
+    
     uint256 constant chainId = 1;
     address constant verifyingContract = 0x1C56346CD2A2Bf3202F771f50d3D14a367B48070;
     bytes32 constant salt = 0xf2d857f4a3edcb9b78b4d503bfe733db1e3f6cdc2b7971ee739626c97e86a558;

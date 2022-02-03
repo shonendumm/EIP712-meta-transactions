@@ -47,7 +47,7 @@
 
 
 <script type="text/javascript">
-    const createOrderBySigMessage = (exchangeAddress, _account = myAccount, _amount = 2000000000000000000, _bidPrice = 1000000000000000000, _chainId = 4) => {
+    const createOrderBySigMessage = (exchangeAddress, _account = myAccount, _amount = 1000000000000000000, _bidPrice = 1000000000000000000, _chainId = 4) => {
         console.log("createOrderBySigMessage called");
         const domain = [{
             name: 'name',
@@ -144,11 +144,11 @@
 
             // add the deployed verifying contract address here. Mainnet || Mainnet-fork 
             if (net === 1 || net === 1337) {
-                exchangeAddress = '0xc00e94cb662c3520282e6f5717214004a7f26888';
+                exchangeAddress = '0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E';
                 console.log("Using mainnet or mainnet fork");
             } else if (net === 4) {
                 // verifying contractAddress on Rinkeby
-                exchangeAddress = '0xd47C59E5b43269CB9819e153F7c4dedeD6D0580f';
+                exchangeAddress = '0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E';
                 console.log("Using rinkeby network");
             }
 
@@ -219,16 +219,18 @@
                 console.log('r', r);
                 console.log('s', s);
 
-                let _amount = myAmount.innerText;
-                let _bidPrice = myBidPrice.innerText;
-                console.log("Amount and BidPrice", _amount, _bidPrice);
+                let account = myAccount;
+                let amount = myAmount.innerText;
+                let bidPrice = myBidPrice.innerText;
+
+                console.log("Account, Amount and BidPrice", account, amount, bidPrice);
 
                 //     signatures.push({ delegatee, nonce, expiry, v, r, s });
 
                 BUY_ORDERS_ARRAY.push({
-                    myAccount,
-                    _amount,
-                    _bidPrice,
+                    account,
+                    amount,
+                    bidPrice,
                     v,
                     r,
                     s
@@ -242,8 +244,10 @@
 
             }
 
-            // Create a button for admin to send the batch transactions, the above function.
-            // and a timer for triggering the batch send function
+
+
+
+
             async function batchSendOrders() {
                 // remember to deploy contract again before testing this because contract updated
                 const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
@@ -257,6 +261,7 @@
             }
 
             sendBatchOrdersButton.onclick = async() => {
+                console.log("Send Batch button click! myAccount is ", myAccount);
                 const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
                     from: myAccount,
                     gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
@@ -274,24 +279,6 @@
 
 
     };
-
-
-    /**
-             // Below is for sending a single signed TX
-             // call the verifying contract's method and make gas transaction to change contract state
-             const tx = await comp.methods.delegateBySig(_delegatee, _nonce, _expiry, v, r, s).send({
-                 from: myAccount,
-                 gasLimit: web3.utils.toHex(1000000),
-                 gasPrice: web3.utils.toHex(25000000000),
-             });
-
-             console.log('delegateBySig Transaction', tx);
-
-             // check the new state of the contract via a read function call
-             currentDelegatee = await comp.methods.delegates(myAccount).call();
-             myDelegatee.innerText = currentDelegatee;
-             console.log(`Now delegated to: ${currentDelegatee}`);
-             **/
 </script>
 
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier:MIT
-// EsterToken is an ERC20 token, mints to 2000 tokens at the start
+// EsterToken is an ERC20 token, mints to 2000 tokens at the start. 1000 for msg.sender, 1000 for this contract.
 // Deposit 1 ETH to get 1 ESTR
 
 pragma solidity ^0.8.0;
