@@ -1,3 +1,5 @@
+// Script for deploying ESTR token and Exchange contracts
+
 const hre = require("hardhat");
 
 async function main() {

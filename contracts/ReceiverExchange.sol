@@ -1,7 +1,7 @@
 // SPDX-License-Identifier:MIT
 
 pragma solidity ^0.8.0;
-// pragma abicoder v2;
+// pragma abicoder v2; by default included 
 // pragma experimental ABIEncoderV2;
 
 
@@ -45,16 +45,6 @@ contract ReceiverExchange {
 // CONTINUE TOMORROW: THURSDAY - Deploy this contract and test
 
 
-    function handleEachOrder(address _account, uint256 _amount, uint256 _bidPrice, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
-        bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), getChainId(), address(this)));
-        bytes32 structHash = keccak256(abi.encode(ORDER_TYPEHASH, _account, _amount, _bidPrice));
-        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
-        // need to check this: This should return the public key of the buyer.
-        address buyer_account = ecrecover(digest, v, r, s);
-        require(buyer_account == _account, "Not same account!" );
-        require(buyer_account != address(0), "Invalid signature: address 0x");
-        return _handleBuyOrderTransaction(_account,_amount,_bidPrice);
-    }
 
     function handleBatchOrders(BuyOrder[] memory _batchOrders) public {
         for (uint i = 0; i < _batchOrders.length; i++) {
@@ -63,29 +53,16 @@ contract ReceiverExchange {
         }
     }
 
-    // old function that tested okay
-    // function _handleBatchOrders(BuyOrder[] memory batchBuyOrders) internal {
-    //     for (uint256 i = 0; i < batchBuyOrders.length; i++) {
-    //         BuyOrder memory buy_order = batchBuyOrders[i];  
-    //         console.log("handling order in batch order");
-    //         _handleBuyOrderTransaction(buy_order);
-    //         console.log("All orders handled!");
-    //     }
-    // }
-
-
-    // tested runs okay
-    // function testBatchOrders() public {
-    //     BuyOrder memory buy_order1 = BuyOrder(10, 5);
-    //     BuyOrder memory buy_order2 = BuyOrder(10, 10);
-    //     console.log("test batch orders");
-    //     buy_orders.push(buy_order1);
-    //     buy_orders.push(buy_order2);
-    //     console.log("orders push to array");
-    //     _handleBatchOrders(buy_orders);
-    // }
-
-
+    function handleEachOrder(address _account, uint256 _amount, uint256 _bidPrice, uint8 v, bytes32 r, bytes32 s) public returns (bool) {
+        bytes32 domainSeparator = keccak256(abi.encode(DOMAIN_TYPEHASH, keccak256(bytes(name)), getChainId(), address(this)));
+        bytes32 structHash = keccak256(abi.encode(ORDER_TYPEHASH, _account, _amount, _bidPrice));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
+        // need to check this: ecrecover should return the public key of the buyer.
+        address buyer_account = ecrecover(digest, v, r, s);
+        require(buyer_account == _account, "Not same account!" );
+        require(buyer_account != address(0), "Invalid signature: address 0x");
+        return _handleBuyOrderTransaction(_account,_amount,_bidPrice);
+    }
 
     function _handleBuyOrderTransaction(address _account, uint256 _amount, uint256 _bidPrice) internal returns(bool) {
         console.log("handling order");
@@ -98,8 +75,7 @@ contract ReceiverExchange {
     }
    
 
-    //  this function works! change this to a internal function later
-    function _transferToBuyer(address buyer, uint256 amount) public returns(bool) {
+    function _transferToBuyer(address buyer, uint256 amount) internal returns(bool) {
         emit BoughtESTR(buyer, amount);
         return EstrContract.transfer(buyer, amount);
     }
@@ -110,7 +86,7 @@ contract ReceiverExchange {
     }
 
 
-    function getChainId() internal pure returns (uint) {
+    function getChainId() internal view returns (uint) {
         uint256 chainId;
         assembly { chainId := chainid() }
         return chainId;
