@@ -27,7 +27,8 @@ Token Exchange contact deployed on rinkeby: https://rinkeby.etherscan.io/address
 1. Git clone or download this project.
 cd into project using terminal.
 
-2. then run using nodejs:
+2. Then run using nodejs:
+
 `http-server`
 
 (You might need to run `npm install` first.)
@@ -56,6 +57,7 @@ The page will auto-send transaction batches using its own wallet. Under "depende
 ## How to deploy your own app on Rinkeby
 
 1. Add your own .env file with these:
+
 `
 ETHERSCAN_TOKEN=[your etherscan api]
 RINKEBY_RPC_URL=[your infura or alchemy node set to ethereum for deploying contracts]
