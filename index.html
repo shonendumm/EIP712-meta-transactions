@@ -44,6 +44,7 @@
 
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.4.0/dist/web3.min.js"></script>
 <script type="text/javascript" src="../dependencies/exchange-abi.js"></script>
+<script type="text/javascript" src="../dependencies/server-wallet.js"></script>
 
 
 <script type="text/javascript">
@@ -157,8 +158,10 @@
             const exchangeAbi = window.exchangeAbi;
             const exchangeContract = new web3.eth.Contract(exchangeAbi, exchangeAddress);
 
+
             // // this calls the contract info, a mapping named delegates:
             // let currentDelegatee = await comp.methods.delegates(myAccount).call();
+
 
             // Create signature based on information entered, e.g. bid price and amount of ESTR tokens.
             // e.g. Sign Buy Order (off-chain)
@@ -245,13 +248,16 @@
             }
 
 
-
+            const private_key = SERVER_PRIVATE_KEY;
+            const serverWallet = web3.eth.accounts.wallet.add(private_key);
 
 
             async function batchSendOrders() {
+
+
                 // remember to deploy contract again before testing this because contract updated
                 const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
-                    from: myAccount,
+                    from: serverWallet,
                     gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
                     gasPrice: web3.utils.toHex(20000000000),
                 });
@@ -261,9 +267,11 @@
             }
 
             sendBatchOrdersButton.onclick = async() => {
-                console.log("Send Batch button click! myAccount is ", myAccount);
+                const web3 = new Web3('http://127.0.0.1:8080');
+                const serverWallet = web3.eth.accounts.wallet.add('c1a405ad5c3a38728318fcfadfe43c51b09f0bc964091024701c521c95de30af');
+                console.log("Send Batch button click! myAccount is ", serverWallet);
                 const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
-                    from: myAccount,
+                    from: serverWallet,
                     gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
                     gasPrice: web3.utils.toHex(20000000000),
                 });
