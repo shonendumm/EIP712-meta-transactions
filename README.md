@@ -63,6 +63,7 @@ PRIVATE_KEY=[your metamask wallet's private key]
 `
 
 2. Compile the contracts: 
+
 `npx hardhat compile`
 
 3. Copy the compiled token exchange contract's abi (from "artifacts/contracts/TokenExchange.sol/TokenExchange.json") into "dependencies/exchange-abi.js".
@@ -70,14 +71,17 @@ Use the existing file for reference.
 
 
 4. Deploy both contracts (Ester Token and Token Exchange) to rinkeby network:
+
 `npx hardhat run scripts/deploy_token_exchange.js --network rinkeby`
 
 5. Copy the deployed EsterToken contract address and paste it in the address here to verify the contract. 
+
 `npx hardhat verify 0xE0427767282C793feb3896d048395ff543DBcAB2 --network rinkeby`
 
 If you encounter a ENOENT error while verifying, run `npx hardhat clean` and then run the above verification command again.
 
 Optional: If you like, you can also verify the exchange contract, passing it the EsterToken contract address as an argument, e.g.:
+
 `npx hardhat verify 0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E --network rinkeby 0xE0427767282C793feb3896d048395ff543DBcAB2`
 
 6. After verification, go to rinkeby etherscan for the ESTR contract and transfer ESTER tokens to the Token Exchange contracy.
@@ -89,6 +93,7 @@ This is to give the Exchange some ESTR tokens, so that it can carry out user bid
 This is so that the index.html webpage can sign and send to the Token Exchange contract. Remember to save.
 
 8. Then, run the page server using:
+
 `http-server -p 8080`
 
 9. Open your chrome browser (with metamask set to Rinkeby) http://127.0.0.1:8080
@@ -109,17 +114,18 @@ You can verify your wallet balance by "reading" the ESTR token contract on Rinke
 
 
 ## Limitations of this project
-Due to limited time/knowledge (because I only started learning Hardhat a week ago; prior to that I was learning Brownie (python))
 
 - I did not write user input verification in the frontend. Just some verification of user input in the smart contract, e.g. minimum bid price.
 - This isn't a dynamic app with a server, nor is it a safe app. I need some time to pick up nodejs/express.
-- There are no formally written tests for the contracts. Though I did test them with console log and observation of the results of transactions/functions.
+- There are no formally written tests for the contracts. Though I did test them with hardhat console log and observation of the results of transactions/functions.
 
 This project is mainly for learning and demo purposes.
 
 
 ## References
-Without which this demo will not be possible. I referenced from Compound's method for EIP-712 transactions. 
+Without which this demo will not be possible. 
+
+I referenced from Compound's method for EIP-712 transactions. 
 Specifically their delegation of signatures.
 https://medium.com/compound-finance/delegation-and-voting-with-eip-712-signatures-a636c9dfec5e
 
