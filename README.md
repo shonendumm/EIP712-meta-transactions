@@ -58,13 +58,12 @@ The page will auto-send transaction batches using its own wallet. Under "depende
 
 1. Add your own .env file with these:
 
-`
-ETHERSCAN_TOKEN=[your etherscan api]
+`ETHERSCAN_TOKEN=[your etherscan api]`
 
-RINKEBY_RPC_URL=[your infura or alchemy node set to ethereum for deploying contracts]
+`RINKEBY_RPC_URL=[your infura or alchemy node set to ethereum for deploying contracts]`
 
-PRIVATE_KEY=[your metamask wallet's private key]
-`
+`PRIVATE_KEY=[your metamask wallet's private key]`
+
 
 2. Compile the contracts: 
 
