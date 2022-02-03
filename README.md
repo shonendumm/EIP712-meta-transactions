@@ -60,7 +60,9 @@ The page will auto-send transaction batches using its own wallet. Under "depende
 
 `
 ETHERSCAN_TOKEN=[your etherscan api]
+
 RINKEBY_RPC_URL=[your infura or alchemy node set to ethereum for deploying contracts]
+
 PRIVATE_KEY=[your metamask wallet's private key]
 `
 
