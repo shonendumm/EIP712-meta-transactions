@@ -100,6 +100,11 @@ This is to give the Exchange some ESTR tokens, so that it can carry out user bid
 7. Copy the deployed token exchange contract address and paste to "index.html" (line 152). 
 This is so that the index.html webpage can sign and send to the Token Exchange contract. Remember to save.
 
+
+7B. Copy the Token Exchange contract's ABI from "artifacts/contracts/TokenExchange.sol/TokenExchange.json" and paste it into "dependencies/exchange-abi.js". 
+This is so that our webpage can interact with the Token Exchange contract through its interface.
+
+
 8. Then, run the page server using:
 
 `http-server -p 8080`
