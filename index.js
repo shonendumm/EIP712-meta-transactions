@@ -15,12 +15,23 @@ app.use(express.json({ limit: '1mb' }));
 
 
 
-const BUY_ORDERS_ARRAY = [];
+let BUY_ORDERS_ARRAY = [];
 
 app.post('/send-buy-order', (request, response) => {
     const data = request.body;
     console.log("From user", data);
     response.json({ message: "received order!" });
+
+    BUY_ORDERS_ARRAY.push({
+        account,
+        amount,
+        bidPrice,
+        v,
+        r,
+        s
+    });
+
+
 })
 
 

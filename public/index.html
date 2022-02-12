@@ -214,13 +214,13 @@
                 });
             }
 
-            let BUY_ORDERS_ARRAY = [];
-            console.log("Buy orders array", BUY_ORDERS_ARRAY);
+            // let BUY_ORDERS_ARRAY = [];
+            // console.log("Buy orders array", BUY_ORDERS_ARRAY);
 
 
-            submitOrderButton.onclick = () => {
+            submitOrderButton.onclick = async() => {
 
-                let sig = mySignature.innerText;
+                const sig = mySignature.innerText;
                 console.log("Signature", sig);
 
                 const r = '0x' + sig.substring(2).substring(0, 64);
@@ -231,23 +231,33 @@
                 console.log('r', r);
                 console.log('s', s);
 
-                let account = myAccount;
-                let amount = myAmount.innerText;
-                let bidPrice = myBidPrice.innerText;
+                const account = myAccount;
+                const amount = myAmount.innerText;
+                const bidPrice = myBidPrice.innerText;
 
                 console.log("Account, Amount and BidPrice", account, amount, bidPrice);
 
-                //     signatures.push({ delegatee, nonce, expiry, v, r, s });
-
-                BUY_ORDERS_ARRAY.push({
+                const data = {
                     account,
                     amount,
                     bidPrice,
                     v,
                     r,
                     s
-                });
+                };
 
+                const options = {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                };
+                const response = await fetch('/send-buy-order', options);
+                const jsonObj = await response.json()
+                console.log(jsonObj);
+
+                // reset the display after submitting
                 myAmount.innerText = "";
                 myBidPrice.innerText = "";
                 mySignature.innerText = "";
