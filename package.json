@@ -11,6 +11,7 @@
     },
     "dependencies": {
         "dotenv": "^14.3.2",
-        "http-server": "^14.1.0"
+        "http-server": "^14.1.0",
+        "web3": "^1.7.0"
     }
 }

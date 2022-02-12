@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>Token Exchange Relay</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="../dependencies/style.css">
+</head>
+
+<body>
+    <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+    <h1>Off-chain bidding (EIP-712)</h1>
+    <h2>Create signed bid</h2>
+
+    <div class="card">
+        <label>My Address: </label>&nbsp;<span id="my-address"></span>
+        <br />
+        <label>Buying amount: </label>&nbsp;<input id="form-amount" type="text" value="1000000000000000000" />
+        <br />
+        <label>Bid price(in wei; minimum 1 ETH): </label>&nbsp;<input id="form-bid-price" type="text" value="1000000000000000000" />
+        <br />
+        <input id="sign-button" type="submit" value="Sign bid" />
+    </div>
+    <h2>Post Bid</h2>
+    <div class="card">
+        <label>Buying amount: </label>&nbsp;<span id="my-amount"></span>
+        <br />
+        <br />
+        <label>Bid price(in wei): </label>&nbsp;<span id="my-bid-price"></span>
+        <br />
+        <br />
+        <label>Signature: </label>&nbsp;<span id="my-signature"></span>
+        <br />
+        <input id="submit-order-button" type="submit" value="Confirm and Save bid" />
+        <br />
+        <br />
+    </div>
+    <div>
+        <button id="send-batch-orders-button">Send batch orders manually</button>
+    </div>
+
+    <script src="" async defer></script>
+</body>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.4.0/dist/web3.min.js"></script>
+<script type="text/javascript" src="../dependencies/exchange-abi.js"></script>
+
+<script type="text/javascript">
+    const createOrderBySigMessage = (exchangeAddress, _account = myAccount, _amount = 1000000000000000000, _bidPrice = 1000000000000000000, _chainId = 4) => {
+        console.log("createOrderBySigMessage called");
+        const domain = [{
+            name: 'name',
+            type: 'string'
+        }, {
+            name: 'chainId',
+            type: 'uint256'
+        }, {
+            name: 'verifyingContract',
+            type: 'address'
+        }, ];
+
+        const buy_order = [{
+            name: 'account',
+            type: 'address'
+        }, {
+            name: 'amount',
+            type: 'uint256'
+        }, {
+            name: 'bidPrice',
+            type: 'uint256'
+        }];
+
+        const domainData = {
+            name: "Token Exchange",
+            chainId: _chainId,
+            verifyingContract: exchangeAddress
+        }
+
+        const message = {
+            account: _account,
+            amount: _amount,
+            bidPrice: _bidPrice
+        }
+
+        return JSON.stringify({
+            types: {
+                EIP712Domain: domain,
+                BuyOrder: buy_order,
+            },
+            primaryType: "BuyOrder",
+            domain: domainData,
+            message: message
+        });
+
+
+    }
+
+
+
+
+    window.onload = function() {
+        let web3;
+        const web3Warning = document.getElementById('web3-warning');
+        // form elements
+        const myAddress = document.getElementById('my-address');
+        const formAmount = document.getElementById('form-amount');
+        const formBidPrice = document.getElementById('form-bid-price');
+        const signButton = document.getElementById("sign-button");
+        // confirm submission elements 
+        const myAmount = document.getElementById('my-amount');
+        const myBidPrice = document.getElementById('my-bid-price');
+        const mySignature = document.getElementById('my-signature');
+        const chainId = document.getElementById('chainId');
+        const submitOrderButton = document.getElementById('submit-order-button');
+        const sendBatchOrdersButton = document.getElementById('send-batch-orders-button');
+
+        console.log("page loaded!")
+
+        main();
+
+
+        async function main() {
+
+            const accounts = await window.ethereum.request({
+                method: 'eth_requestAccounts'
+            }); // enable ethereum
+
+            const myAccount = accounts[0];
+            myAddress.innerText = myAccount;
+
+            web3 = new Web3(window.ethereum);
+
+            const net = +window.ethereum.chainId;
+            // fastest method above.
+            // const net = await window.ethereum.networkVersion;
+            // const net = await window.ethereum.request({method: 'eth_chainId'});
+
+
+            // // This app only works with Rinkeby
+            if (net !== 4 && net !== 31337 && net != 1337) {
+                alert('Please select the Rinkeby or Hardhat/Ganache network.');
+            }
+
+            // add the deployed verifying contract address here. Mainnet || Mainnet-fork 
+            if (net === 1 || net === 1337) {
+                exchangeAddress = '0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E';
+                console.log("Using mainnet or mainnet fork");
+            } else if (net === 4) {
+                // verifying contractAddress on Rinkeby
+                exchangeAddress = '0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E';
+                console.log("Using rinkeby network");
+            }
+
+
+            // deployed Exchange contract ABI that is in the dependencies folder and loaded to page above
+            const exchangeAbi = window.exchangeAbi;
+            const exchangeContract = new web3.eth.Contract(exchangeAbi, exchangeAddress);
+
+
+            // // this calls the contract info, a mapping named delegates:
+            // let currentDelegatee = await comp.methods.delegates(myAccount).call();
+
+
+            // Create signature based on information entered, e.g. bid price and amount of ESTR tokens.
+            // e.g. Sign Buy Order (off-chain)
+            signButton.onclick = async() => {
+
+                console.log("signButton clicked!");
+                const _amount = formAmount.value;
+                const _bidPrice = formBidPrice.value;
+                const _chainId = window.ethereum.chainId.toString();
+                console.log("Form amount:", _amount);
+                console.log("Form bidPrice:", _bidPrice);
+                console.log("ChainId: ", _chainId);
+
+                const msgParams = createOrderBySigMessage(exchangeAddress, myAccount, _amount, _bidPrice, _chainId);
+
+                window.ethereum.sendAsync({
+                    method: 'eth_signTypedData_v4',
+                    params: [myAccount, msgParams],
+                    from: myAccount
+                }, async(err, result) => {
+                    if (err) {
+                        console.error('ERROR', err);
+                        alert(err);
+                        return;
+                    } else if (result.error) {
+                        console.error('ERROR', result.error.message);
+                        alert(result.error.message);
+                        return;
+                    }
+
+                    const sig = result.result;
+                    // display the values on page for confirmation
+                    // myAmount.value = _amount;
+                    myAmount.innerText = _amount;
+                    myBidPrice.innerText = _bidPrice;
+                    mySignature.innerText = sig;
+
+                    console.log('signature', sig);
+                    console.log('msgParams', JSON.parse(msgParams));
+
+
+                });
+            }
+
+            let BUY_ORDERS_ARRAY = [];
+            console.log("Buy orders array", BUY_ORDERS_ARRAY);
+
+
+            submitOrderButton.onclick = () => {
+
+                let sig = mySignature.innerText;
+                console.log("Signature", sig);
+
+                const r = '0x' + sig.substring(2).substring(0, 64);
+                const s = '0x' + sig.substring(2).substring(64, 128);
+                const v = '0x' + sig.substring(2).substring(128, 130);
+
+                console.log('v', v);
+                console.log('r', r);
+                console.log('s', s);
+
+                let account = myAccount;
+                let amount = myAmount.innerText;
+                let bidPrice = myBidPrice.innerText;
+
+                console.log("Account, Amount and BidPrice", account, amount, bidPrice);
+
+                //     signatures.push({ delegatee, nonce, expiry, v, r, s });
+
+                BUY_ORDERS_ARRAY.push({
+                    account,
+                    amount,
+                    bidPrice,
+                    v,
+                    r,
+                    s
+                });
+
+                myAmount.innerText = "";
+                myBidPrice.innerText = "";
+                mySignature.innerText = "";
+                console.log(BUY_ORDERS_ARRAY);
+
+
+            }
+
+            // a wallet for the server to send transactions. See "dependencies/server-wallet.js" for key.
+            // not safe for production. Need to use nodejs and express or similar for serving webpages.
+            const private_key = SERVER_PRIVATE_KEY;
+            const serverWallet = web3.eth.accounts.wallet.add(private_key);
+
+
+            sendBatchOrdersButton.onclick = async() => {
+
+                console.log("Manually Send Batch button click!");
+                const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
+                    from: serverWallet.address,
+                    gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
+                    gasPrice: web3.utils.toHex(20000000000),
+                });
+                // reset the orders array
+                BUY_ORDERS_ARRAY = [];
+                console.log('tx', tx);
+            }
+
+
+
+        }
+
+
+
+
+    };
+</script>
+
+</html>
