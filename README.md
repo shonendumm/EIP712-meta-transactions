@@ -66,11 +66,11 @@ Make sure your metamask wallet is on Rinkeby network, else switch to it, and rel
 You can then switch to another account in your metamask to send another transaction.
 Or use the same account. You do not pay any gas. 
 
-The page will auto-send transaction batches using its own wallet. Under "dependencies/server-wallet.js".
+The page will auto-send transaction batches using its own wallet. key stored in .env
 
 >Note: 
 >When this wallet runs out of rinkeby eth, you can send more to it using https://faucets.chain.link/rinkeby 
->The server wallet's address is 0xAFFfbFd63bE181D9B80d78De09Bb3DaEF1e478D7
+>The server wallet's address is 0x20A5C66B2f591c15BF3dF02618390683648C8C35
 
 
 ## How to deploy your own app on Rinkeby
@@ -115,13 +115,14 @@ This is to give the Exchange some ESTR tokens, so that it can carry out user bid
 This is so that the index.html webpage can sign and send to the Token Exchange contract. Remember to save.
 
 
-7B. Copy the Token Exchange contract's ABI from "artifacts/contracts/TokenExchange.sol/TokenExchange.json" and paste it into "dependencies/exchange-abi.js". 
+7B. Copy the Token Exchange contract's ABI from "artifacts/contracts/TokenExchange.sol/TokenExchange.json" and paste it into "public/exchange-abi.js". 
+
 This is so that our webpage can interact with the Token Exchange contract through its interface.
 
 
 8. Then, run the page server using:
 
-`http-server -p 8080`
+`node index.js`
 
 9. Open your chrome browser (with metamask set to Rinkeby) http://127.0.0.1:8080
 
