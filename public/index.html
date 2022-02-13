@@ -119,8 +119,6 @@
         const chainId = document.getElementById('chainId');
         const submitOrderButton = document.getElementById('submit-order-button');
 
-        console.log("page loaded!")
-
         main();
 
 
@@ -142,8 +140,8 @@
 
 
             // // This app only works with Rinkeby
-            if (net !== 4 && net !== 31337 && net != 1337) {
-                alert('Please select the Rinkeby or Hardhat/Ganache network.');
+            if (net !== 4) {
+                alert('Please select the Rinkeby network on your metamask wallet and reload');
             }
 
             // add the deployed verifying contract address here. Mainnet || Mainnet-fork 
@@ -256,20 +254,6 @@
 
 
             }
-
-
-            // sendBatchOrdersButton.onclick = async() => {
-
-            //     console.log("Manually Send Batch button click!");
-            //     const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
-            //         from: serverWallet.address,
-            //         gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
-            //         gasPrice: web3.utils.toHex(20000000000),
-            //     });
-            //     // reset the orders array
-            //     BUY_ORDERS_ARRAY = [];
-            //     console.log('tx', tx);
-            // }
 
 
 

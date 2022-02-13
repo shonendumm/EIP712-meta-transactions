@@ -143,7 +143,6 @@ You can verify your wallet balance by "reading" the ESTR token contract on Rinke
 ## Limitations of this project
 
 - I did not write user input verification in the frontend. Just some verification of user input in the smart contract, e.g. minimum bid price.
-- This isn't a dynamic app with a server, nor is it a safe app. I need some time to pick up nodejs/express.
 - There are no formally written tests for the contracts. Though I did test them with hardhat console log and observation of the results of transactions/functions.
 
 This project is mainly for learning and demo purposes.
