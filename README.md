@@ -24,9 +24,23 @@ It has a 1:1 ratio with ETH. You can send the contract ETH to get ESTR tokens. J
 
 ## How to try the deployed app
 
+You can try the app at https://token-exchange-node.herokuapp.com/
+Remember to set your metamask to the rinkeby network.
+
+After signing your bid, remember to confirm and save it.
+
+In intervals of 30 seconds, the app will send your signed bid to our Token Exchange contract,which willl carry out the transaction to buy Ester tokens for you.
+
+(Actually the Token Exchange will transfer ESTR tokens from its holdings to you)
+You can verify that you have the ESTR tokens by going to the ESTR contract and use Read the Contract for your account balance.
+
+
+
 ESTR contract has been deployed on rinkeby: https://rinkeby.etherscan.io/address/0xe0427767282c793feb3896d048395ff543dbcab2
 
 Token Exchange contact is deployed on rinkeby: https://rinkeby.etherscan.io/address/0xadd39d12ad9b8ffe3dcb48ac3822b94dd1308d2e
+
+
 
 ### To try the app with the already-deployed contracts:
 1. Git clone or download this project.
@@ -34,7 +48,7 @@ cd into project using terminal.
 
 2. Then run using nodejs:
 
-`http-server`
+`node index.js`
 
 (You might need to run `npm install` first.)
 
