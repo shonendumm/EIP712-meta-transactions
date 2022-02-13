@@ -5,8 +5,9 @@ require('dotenv').config()
 
 // use web3
 const Web3 = require('web3');
-const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
 
+// to enter an infura endpoint URL
+const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`listening at port ${port}`));
@@ -51,8 +52,8 @@ setInterval(async() => {
 
             const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
                 from: serverWallet.address,
-                gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
-                gasPrice: web3.utils.toHex(20000000000),
+                gasLimit: web3.utils.toHex(30000000), // set gas limit and gas price here
+                gasPrice: web3.utils.toHex(20000000000), // 29970648 
             });
             // reset the orders array
             BUY_ORDERS_ARRAY = [];
