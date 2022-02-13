@@ -12,7 +12,7 @@
     <title>Token Exchange Relay</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="../dependencies/style.css">
+    <link rel="stylesheet" type="text/css" href="./style.css">
 </head>
 
 <body>
@@ -46,14 +46,10 @@
         <br />
         <br />
     </div>
-    <div>
-        <button id="send-batch-orders-button">Send batch orders manually</button>
-    </div>
 
-    <script src="" async defer></script>
 </body>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.4.0/dist/web3.min.js"></script>
-<script type="text/javascript" src="../dependencies/exchange-abi.js"></script>
+<script type="text/javascript" src="./exchange-abi.js"></script>
 
 <script type="text/javascript">
     const createOrderBySigMessage = (exchangeAddress, _account = myAccount, _amount = 1000000000000000000, _bidPrice = 1000000000000000000, _chainId = 4) => {
@@ -122,7 +118,6 @@
         const mySignature = document.getElementById('my-signature');
         const chainId = document.getElementById('chainId');
         const submitOrderButton = document.getElementById('submit-order-button');
-        const sendBatchOrdersButton = document.getElementById('send-batch-orders-button');
 
         console.log("page loaded!")
 
@@ -162,7 +157,7 @@
             }
 
 
-            // deployed Exchange contract ABI that is in the dependencies folder and loaded to page above
+            // deployed Exchange contract ABI that is in the public folder and loaded to page above
             const exchangeAbi = window.exchangeAbi;
             const exchangeContract = new web3.eth.Contract(exchangeAbi, exchangeAddress);
 
@@ -214,9 +209,6 @@
                 });
             }
 
-            // let BUY_ORDERS_ARRAY = [];
-            // console.log("Buy orders array", BUY_ORDERS_ARRAY);
-
 
             submitOrderButton.onclick = async() => {
 
@@ -261,29 +253,23 @@
                 myAmount.innerText = "";
                 myBidPrice.innerText = "";
                 mySignature.innerText = "";
-                console.log(BUY_ORDERS_ARRAY);
 
 
             }
 
-            // a wallet for the server to send transactions. See "dependencies/server-wallet.js" for key.
-            // not safe for production. Need to use nodejs and express or similar for serving webpages.
-            const private_key = SERVER_PRIVATE_KEY;
-            const serverWallet = web3.eth.accounts.wallet.add(private_key);
 
+            // sendBatchOrdersButton.onclick = async() => {
 
-            sendBatchOrdersButton.onclick = async() => {
-
-                console.log("Manually Send Batch button click!");
-                const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
-                    from: serverWallet.address,
-                    gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
-                    gasPrice: web3.utils.toHex(20000000000),
-                });
-                // reset the orders array
-                BUY_ORDERS_ARRAY = [];
-                console.log('tx', tx);
-            }
+            //     console.log("Manually Send Batch button click!");
+            //     const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
+            //         from: serverWallet.address,
+            //         gasLimit: web3.utils.toHex(6000000), // set gas limit and gas price here
+            //         gasPrice: web3.utils.toHex(20000000000),
+            //     });
+            //     // reset the orders array
+            //     BUY_ORDERS_ARRAY = [];
+            //     console.log('tx', tx);
+            // }
 
 
 
