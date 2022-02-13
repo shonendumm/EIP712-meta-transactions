@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const Datastore = require('nedb');
+// const Datastore = require('nedb');
 require('dotenv').config()
 
 // use web3
@@ -16,8 +16,8 @@ app.use(express.json({ limit: '1mb' }));
 
 
 let BUY_ORDERS_ARRAY = [];
-const database = new Datastore('database.db');
-database.loadDatabase();
+// const database = new Datastore('database.db');
+// database.loadDatabase();
 
 app.post('/send-buy-order', (request, response) => {
     const data = request.body;
@@ -25,7 +25,7 @@ app.post('/send-buy-order', (request, response) => {
     console.log("From user", data);
     response.json({ message: "received order!" });
 
-    database.insert(data);
+    // database.insert(data);
     BUY_ORDERS_ARRAY.push(data);
 
 
@@ -48,9 +48,9 @@ const exchangeContract = new web3.eth.Contract(exchangeAbi, exchangeAddress);
 const timer = 30 * 1000;
 setInterval(async() => {
     try {
-        console.log("Auto Batch Send called by timer")
+        console.log("Auto Batch called by timer")
         if (BUY_ORDERS_ARRAY.length > 0) {
-            console.log("Auto Batch Send called: sent transactions")
+            console.log("Auto Batch: sent transactions")
             const tx = await exchangeContract.methods.handleBatchOrders(BUY_ORDERS_ARRAY).send({
                 from: serverWallet.address,
                 gasLimit: web3.utils.toHex(20000000), // set gas limit and gas price here
