@@ -26,6 +26,8 @@
     <div class="card">
         <label>My Address: </label>&nbsp;<span id="my-address"></span>
         <br />
+        <label>My ESTR balance: </label>&nbsp;<span id="my-balance"></span>
+        <br />
         <label>Buying amount: </label>&nbsp;<input id="form-amount" type="text" value="1000000000000000000" />
         <br />
         <label>Bid price(in wei; minimum 1 ETH): </label>&nbsp;<input id="form-bid-price" type="text" value="1000000000000000000" />
@@ -50,6 +52,8 @@
 </body>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.4.0/dist/web3.min.js"></script>
 <script type="text/javascript" src="./exchange-abi-copy.js"></script>
+<script type="text/javascript" src="./estercontract-abi.js"></script>
+
 
 <script type="text/javascript">
     const createOrderBySigMessage = (exchangeAddress, _account = myAccount, _amount = 1000000000000000000, _bidPrice = 1000000000000000000, _chainId = 4) => {
@@ -112,12 +116,17 @@
         const formAmount = document.getElementById('form-amount');
         const formBidPrice = document.getElementById('form-bid-price');
         const signButton = document.getElementById("sign-button");
+        const myBalance = document.getElementById('my-balance');
+
         // confirm submission elements 
         const myAmount = document.getElementById('my-amount');
         const myBidPrice = document.getElementById('my-bid-price');
         const mySignature = document.getElementById('my-signature');
         const chainId = document.getElementById('chainId');
         const submitOrderButton = document.getElementById('submit-order-button');
+
+
+
 
         main();
 
@@ -146,11 +155,12 @@
 
             // add the deployed verifying contract address here. Mainnet || Mainnet-fork 
             if (net === 1 || net === 1337) {
-                exchangeAddress = '0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E';
-                console.log("Using mainnet or mainnet fork");
+                // exchangeAddress = '0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E';
+                console.log("Using mainnet or mainnet fork. Pls switch to Rinkeby");
             } else if (net === 4) {
                 // verifying contractAddress on Rinkeby
                 exchangeAddress = '0xadd39d12aD9b8FFe3DCB48ac3822b94DD1308d2E';
+                esterContractAddress = '0xE0427767282C793feb3896d048395ff543DBcAB2';
                 console.log("Using rinkeby network");
             }
 
@@ -163,6 +173,11 @@
             // // this calls the contract info, a mapping named delegates:
             // let currentDelegatee = await comp.methods.delegates(myAccount).call();
 
+            const esterTokenAbi = window.tokenAbi;
+            const esterContract = new web3.eth.Contract(esterTokenAbi, esterContractAddress);
+
+            let currentBalance = await esterContract.methods.balanceOf(myAccount).call();
+            myBalance.innerText = currentBalance;
 
             // Create signature based on information entered, e.g. bid price and amount of ESTR tokens.
             // e.g. Sign Buy Order (off-chain)
