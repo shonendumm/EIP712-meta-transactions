@@ -52,7 +52,7 @@ cd into project using terminal.
 
 (You might need to run `npm install` first.)
 
-3. Then, go to page http://127.0.0.1:8080/ in your browser.
+3. Then, go to page http://localhost:3000/ in your browser.
 
 Make sure your metamask wallet is on Rinkeby network, else switch to it, and reload webpage.
 
@@ -66,11 +66,11 @@ Make sure your metamask wallet is on Rinkeby network, else switch to it, and rel
 You can then switch to another account in your metamask to send another transaction.
 Or use the same account. You do not pay any gas. 
 
-The page will auto-send transaction batches using its own wallet. key stored in .env
+The page will auto-send transaction batches using its own wallet. keys stored in .env
 
 >Note: 
->When this wallet runs out of rinkeby eth, you can send more to it using https://faucets.chain.link/rinkeby 
->The server wallet's address is 0x20A5C66B2f591c15BF3dF02618390683648C8C35
+>When the server wallet runs out of rinkeby eth, you can send more to it using https://faucets.chain.link/rinkeby 
+>The address is 0x20A5C66B2f591c15BF3dF02618390683648C8C35
 
 
 ## How to deploy your own app on Rinkeby
