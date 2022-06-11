@@ -3,8 +3,12 @@
 
 ## What is this app about?
 
+![image info](testapp-diagram.png)
+
 Token Exchange accepts off-chain ERC712 signed bids from users to buy Ester ERC20 tokens ("ESTR"). 
 It batches their bids and makes gasless transactions for them.
+
+
 
 ### How it works (roughly)
 
