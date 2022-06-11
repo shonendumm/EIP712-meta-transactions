@@ -5,9 +5,12 @@
 
 ![image info](testapp-diagram.png)
 
-Token Exchange accepts off-chain ERC712 signed bids from users to buy Ester ERC20 tokens ("ESTR"). 
+For this assignment, the relayer service is called the Token Exchange.
+It accepts off-chain ERC712 signed bids from users to buy Ester ERC20 tokens ("ESTR") on the Rinkeby blockchain (a test network for Ethereum).
 It batches their bids and makes gasless transactions for them.
 
+You can try the app at https://token-exchange-node.herokuapp.com/
+Remember to set your metamask to the rinkeby network.
 
 
 ### How it works (roughly)
