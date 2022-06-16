@@ -1,4 +1,4 @@
-# Token Exchange relay with EIP-712 signed off-chain (gasless) transactions
+# Token Exchange webapp with EIP-712 signed off-chain (gasless) transactions
 
 
 ## What is this app about?
